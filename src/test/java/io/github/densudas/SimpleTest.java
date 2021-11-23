@@ -8,7 +8,7 @@ public class SimpleTest {
   @Test
   public void test() {
 
-    new IndexPage().clickSearchButton();
+    new IndexPage().clickImFillingLuckyButton();
 
     System.out.println();
   }

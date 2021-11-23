@@ -9,7 +9,7 @@ import org.openqa.selenium.By;
 public class IndexPage extends BasePage<IndexPage> {
 
   public IndexPage clickSearchButton() {
-    new Button(ButtonLabels.GOOGLE_SEARCH).getControl().click();
+    new Button(ButtonLabels.GOOGLE_SEARCH).findControl().click();
     return this;
   }
 
@@ -21,7 +21,7 @@ public class IndexPage extends BasePage<IndexPage> {
                     "input[type='submit'][aria-label='"
                         + ButtonLabels.IM_FEELING_LUCKY.getName()
                         + "']")))
-        .getControl()
+        .findControl()
         .click();
     return this;
   }

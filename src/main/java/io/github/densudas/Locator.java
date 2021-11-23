@@ -1,11 +1,13 @@
 package io.github.densudas;
 
+import io.github.densudas.controls.ControlType;
 import org.openqa.selenium.By;
 
 public class Locator {
 
   private boolean searchFromRootNode;
   private ControlSort controlSort;
+  private ControlType controlType;
   private By locator;
   private Locator parentLocator;
   private boolean hasShadowRoot; // does control have shadow root
@@ -18,6 +20,7 @@ public class Locator {
 
   public Locator(ControlSort controlSort, By locator) {
     this.controlSort = controlSort;
+    this.controlType = controlSort.getControlType();
     this.locator = locator;
   }
 
@@ -82,5 +85,13 @@ public class Locator {
   public Locator setParentLocator(Locator parentLocator) {
     this.parentLocator = parentLocator;
     return this;
+  }
+
+  public ControlType getControlType() {
+    return controlType;
+  }
+
+  public void setControlType(ControlType controlType) {
+    this.controlType = controlType;
   }
 }

@@ -9,12 +9,20 @@ public class ControlSorts {
     BUTTON_2,
     BUTTON_3;
 
-    public ControlType controlType = ControlType.BUTTON;
+    private final ControlType controlType = ControlType.BUTTON;
+
+    public ControlType getControlType() {
+      return controlType;
+    }
   }
 
   public enum TextField implements ControlSort {
     TEXT_FIELD_1;
 
-    public ControlType controlType = ControlType.TEXT_FIELD;
+    private final ControlType controlType = ControlType.TEXT_FIELD;
+
+    public ControlType getControlType() {
+      return controlType;
+    }
   }
 }

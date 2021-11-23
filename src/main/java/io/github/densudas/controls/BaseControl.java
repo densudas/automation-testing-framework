@@ -4,7 +4,7 @@ import io.github.densudas.ControlSort;
 import io.github.densudas.Locator;
 import org.openqa.selenium.WebElement;
 
-public class BaseControl {
+public abstract class BaseControl {
 
   private boolean searchFromRootNode;
   protected ControlSort controlSort;
@@ -22,7 +22,10 @@ public class BaseControl {
   protected WebElement webElement;
   protected Throwable error;
 
-  public void findLocators() {}
+  public void findLocators() {
+    controlSort = locator.getControlSort();
+    controlType = locator.getControlType();
+  }
 
   public boolean isFound() {
     return webElement != null;
