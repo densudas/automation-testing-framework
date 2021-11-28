@@ -2,11 +2,11 @@ package io.github.densudas.pages.indexpage;
 
 import io.github.densudas.TranslatableLocatorName;
 
-public enum ButtonLabels implements TranslatableLocatorName {
+public enum TextFieldLabels implements TranslatableLocatorName {
 
-  ;
+  SEARCH("Search");
 
-  ButtonLabels(String name) {
+  TextFieldLabels(String name) {
     this.name = name;
   }
 

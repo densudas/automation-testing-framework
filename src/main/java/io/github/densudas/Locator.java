@@ -8,20 +8,15 @@ public class Locator {
   private boolean searchFromRootNode;
   private ControlSort controlSort;
   private ControlType controlType;
-  private By locator;
+  private By by;
   private Locator parentLocator;
-  private boolean hasShadowRoot; // does control have shadow root
-  // a sequence number of controls with the same name on the page (starts with 1)
+  private boolean hasShadowRoot;
   private int index = 1;
-  // save the control in the repository
-  private boolean saveToControlsStorage;
 
-  public Locator() {}
-
-  public Locator(ControlSort controlSort, By locator) {
+  public Locator(ControlSort controlSort, By by) {
     this.controlSort = controlSort;
     this.controlType = controlSort.getControlType();
-    this.locator = locator;
+    this.by = by;
   }
 
   public boolean isSearchFromRootNode() {
@@ -60,21 +55,12 @@ public class Locator {
     return this;
   }
 
-  public boolean isSaveToControlsStorage() {
-    return saveToControlsStorage;
+  public By getBy() {
+    return by;
   }
 
-  public Locator setSaveToControlsStorage(boolean saveToControlsStorage) {
-    this.saveToControlsStorage = saveToControlsStorage;
-    return this;
-  }
-
-  public By getLocator() {
-    return locator;
-  }
-
-  public Locator setLocator(By locator) {
-    this.locator = locator;
+  public Locator setBy(By by) {
+    this.by = by;
     return this;
   }
 

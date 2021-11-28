@@ -1,30 +1,38 @@
 package io.github.densudas.controls;
 
+import io.github.densudas.Locatable;
 import io.github.densudas.Locator;
 import io.github.densudas.LocatorName;
+import io.github.densudas.exceptions.ControlNotFoundException;
 import io.github.densudas.exceptions.ControlNotInteractableException;
-import io.github.densudas.exceptions.ControlNotVisibleException;
 import io.github.densudas.utils.Utils;
 
 public class Button extends BaseControl {
 
-  public Button(String name, int index) {
+  public Button(Locatable pageObject, String name, int index) {
+    this.location = pageObject.getLocation();
     this.name = name;
     this.index = index;
+    this.controlType = ControlType.BUTTON;
   }
 
-  public Button(String name) {
+  public Button(Locatable pageObject,String name) {
+    this.location = pageObject.getLocation();
     this.name = name;
+    this.controlType = ControlType.BUTTON;
   }
 
-  public Button(LocatorName name) {
+  public Button(Locatable pageObject,LocatorName name) {
+    this.location = pageObject.getLocation();
     this.name = name.getName();
+    this.controlType = ControlType.BUTTON;
   }
 
   public Button(Locator locator) {
     this.saveToControlsStorage = false;
     this.searchControlInStorage = false;
     this.locator = locator;
+    this.controlType = ControlType.BUTTON;
   }
 
   //TODO: check if it can be moved inside constructors
@@ -36,7 +44,7 @@ public class Button extends BaseControl {
 
   public Button click() throws ControlNotInteractableException {
 
-    if (webElement == null) throw new ControlNotVisibleException(this);
+    if (webElement == null) throw new ControlNotFoundException(this);
     if (!webElement.isEnabled()) throw new ControlNotInteractableException(this);
 
     switch ((ControlSorts.Button) controlSort) {
