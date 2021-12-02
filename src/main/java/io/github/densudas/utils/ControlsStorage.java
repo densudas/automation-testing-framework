@@ -84,7 +84,7 @@ public class ControlsStorage {
         Enum.valueOf(ControlType.class, ((String) control.get("control_type")).toUpperCase());
     By by =
         new LocatorMatcher((String) control.get("locator_type"), (String) control.get("locator"))
-            .getBy();
+            .buildBy();
     ControlSort controlSort = controlType.defineControlSort((String) control.get("control_sort"));
     Locator parentLocator =
         getLocatorFromStorage((LinkedTreeMap<?, ?>) control.get("parent_locator"));
@@ -128,8 +128,6 @@ public class ControlsStorage {
         boolean updated = false;
         for (int i = 0; i < controlsType_structure.size(); i++) {
           LinkedTreeMap<?, ?> element = controlsType_structure.get(i);
-          // pageID and control type structures are presented
-          // => replace an existing control in storage with a new data
           if (element.get("name").equals(control.getName())
               && element.get("location").equals(location)) {
             controlsType_structure.set(i, newElement);

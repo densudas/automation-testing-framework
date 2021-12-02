@@ -1,6 +1,7 @@
 package io.github.densudas.utils;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.support.How;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +12,15 @@ public class LocatorMatcher {
 
   private static final String LOCATOR_REGEX = "^By\\.(\\w+): (.*)$";
 
-  private final String locatorType;
+  private final How locatorType;
   private String locator;
 
   public LocatorMatcher(String locatorType, String locator) {
+    this.locatorType = How.valueOf(locatorType.toUpperCase());
+    this.locator = locator;
+  }
+
+  public LocatorMatcher(How locatorType, String locator) {
     this.locatorType = locatorType;
     this.locator = locator;
   }
@@ -23,22 +29,40 @@ public class LocatorMatcher {
     List<String> matchLocatorRegex = matchLocatorRegex(by);
 
     if (matchLocatorRegex.isEmpty() || matchLocatorRegex.size() < 2) {
-      throw new IllegalArgumentException("Locator By '" + by +"' can not be matched by regex '" + LOCATOR_REGEX + "'");
+      throw new IllegalArgumentException(
+          "Locator By '" + by + "' can not be matched by regex '" + LOCATOR_REGEX + "'");
     }
 
-    this.locatorType = matchLocatorRegex.get(1);
+    this.locatorType = getLocatorType(matchLocatorRegex.get(1));
     this.locator = matchLocatorRegex.get(2);
   }
 
-  public String getLocator() {
-    return locator;
+  private How getLocatorType(String locatorTypeString) {
+    How how;
+    switch (locatorTypeString.toUpperCase()) {
+      case "LINKTEXT":
+        how = How.LINK_TEXT;
+        break;
+      case "PARTIALLINKTEXT":
+        how = How.PARTIAL_LINK_TEXT;
+        break;
+      case "TAGNAME":
+        how = How.TAG_NAME;
+        break;
+      case "CLASSNAME":
+        how = How.CLASS_NAME;
+        break;
+      case "CSSSELECTOR":
+        how = How.CSS;
+        break;
+      default:
+        how = How.valueOf(locatorTypeString.toUpperCase());
+        break;
+    }
+    return how;
   }
 
-  public String getLocatorType() {
-    return locatorType;
-  }
-
-  public static List<String> matchLocatorRegex(By locator) {
+  private List<String> matchLocatorRegex(By locator) {
     if (locator == null) {
       throw new IllegalArgumentException("Instance of class " + By.class + " is null.");
     }
@@ -53,38 +77,20 @@ public class LocatorMatcher {
     return groups;
   }
 
-  public By formatWithName(String name) {
-    locator = String.format(this.locator, name);
-    return getBy();
+  public String getLocator() {
+    return locator;
   }
 
-  public By getBy() {
-    switch (locatorType) {
-      case "xpath" -> {
-        return By.xpath(locator);
-      }
-      case "cssSelector" -> {
-        return By.cssSelector(locator);
-      }
-      case "id" -> {
-        return By.id(locator);
-      }
-      case "linkText" -> {
-        return By.linkText(locator);
-      }
-      case "partialLinkText" -> {
-        return By.partialLinkText(locator);
-      }
-      case "name" -> {
-        return By.name(locator);
-      }
-      case "tagName" -> {
-        return By.tagName(locator);
-      }
-      case "className" -> {
-        return By.className(locator);
-      }
-      default -> throw new IllegalArgumentException("No such locator type: " + locatorType);
-    }
+  public How getLocatorType() {
+    return locatorType;
+  }
+
+  public By formatWithName(String name) {
+    locator = String.format(this.locator, name);
+    return buildBy();
+  }
+
+  public By buildBy() {
+    return locatorType.buildBy(locator);
   }
 }
