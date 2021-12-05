@@ -13,65 +13,45 @@ import org.openqa.selenium.By;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class ControlsStorage {
 
-  public static final String CONTROLS_FOLDER_PATH_JSON =
+  private static final String CONTROL_STORAGE_FILE_PATH =
       String.join(
           Utils.FILE_SEPARATOR,
-          Utils.USER_DIR + "src" + "main" + "java" + "io" + "github" + "densudas" + "utils");
+          Utils.USER_DIR
+              + "src"
+              + "main"
+              + "java"
+              + "io"
+              + "github"
+              + "densudas"
+              + "utils"
+              + "controls.json");
 
-  public String pageID;
-  public String prefix = "random";
+  private String prefix = "random";
   private LinkedTreeMap<String, LinkedTreeMap<String, ?>> controls = new LinkedTreeMap<>();
   private boolean isStorageLoaded;
+  private static Map<Long, ControlsStorage> controlStoragesList = new HashMap<>();
 
-  public void getStorageFromFile() throws Exception {
-    if (!isStorageLoaded) {
-      Path filePath = Paths.get(CONTROLS_FOLDER_PATH_JSON + Utils.FILE_SEPARATOR + "controls.json");
+  public static Locator getLocatorFromStorage(String location, ControlType type, String name)
+      throws Exception {
+    ControlsStorage controlsStorage = getControlsFromStorage();
+    if (controlsStorage.controls == null || controlsStorage.controls.isEmpty()) return null;
 
-      if (Files.exists(filePath)) {
-        Scanner sc = new Scanner(filePath);
-        if (sc.hasNext()) {
-          String str = sc.useDelimiter("\\Z").next();
-          LinkedTreeMap<?, ?> controlStorage = new Gson().fromJson(str, LinkedTreeMap.class);
-          if (controlStorage == null) return;
-          controls = (LinkedTreeMap<String, LinkedTreeMap<String, ?>>) controlStorage;
-        }
-      }
-
-      isStorageLoaded = true;
-    }
-  }
-
-  private String getStorageVersionFromFile() throws Exception {
-    Path filePath =
-        Paths.get(CONTROLS_FOLDER_PATH_JSON + Utils.FILE_SEPARATOR + "storage_version.txt");
-    return Files.exists(filePath) ? String.join(" ", Files.readAllLines(filePath)).trim() : null;
-  }
-
-  public void setStorageToFile() throws Exception {
-    if (isStorageLoaded) {
-      String prettyJsonString = getPrettyJsonString(controls);
-      Path filePath = Paths.get(CONTROLS_FOLDER_PATH_JSON + Utils.FILE_SEPARATOR + "controls.json");
-      Files.write(filePath, prettyJsonString.getBytes());
-    }
-  }
-
-  public Locator getLocatorFromStorage(String location, ControlType type, String name) {
-    if (controls == null || controls.isEmpty()) return null;
-
-    LinkedTreeMap<?, ?> pageControls = controls.get(pageID);
+    LinkedTreeMap<?, ?> pageControls = controlsStorage.controls.get(location);
     if (pageControls != null) {
       ArrayList<?> controls = (ArrayList<?>) pageControls.get(type.toString());
       if (controls != null) {
         for (LinkedTreeMap<?, ?> control : (ArrayList<LinkedTreeMap<?, ?>>) controls) {
           if (control.get("name").equals(name) && control.get("location").equals(location)) {
-            return getLocatorFromStorage(control);
+            return controlsStorage.getLocatorFromStorage(control);
           }
         }
       }
@@ -79,24 +59,9 @@ public class ControlsStorage {
     return null;
   }
 
-  public Locator getLocatorFromStorage(LinkedTreeMap<?, ?> control) {
-    ControlType controlType =
-        Enum.valueOf(ControlType.class, ((String) control.get("control_type")).toUpperCase());
-    By by =
-        new LocatorMatcher((String) control.get("locator_type"), (String) control.get("locator"))
-            .buildBy();
-    ControlSort controlSort = controlType.defineControlSort((String) control.get("control_sort"));
-    Locator parentLocator =
-        getLocatorFromStorage((LinkedTreeMap<?, ?>) control.get("parent_locator"));
-
-    return new Locator(controlSort, by)
-        .setHasShadowRoot((boolean) control.get("shadow_root"))
-        .setSearchFromRootNode((boolean) control.get("search_from_root_node"))
-        .setParentLocator(parentLocator);
-  }
-
-  public void setControlToStorage(BaseControl control) {
+  public static void addControlToStorage(BaseControl control) throws Exception {
     if (!control.getSaveToControlsStorage()) return;
+    ControlsStorage controlsStorage = getControlsFromStorage();
 
     String typeString = control.getControlType().getName();
     String location = control.getLocation();
@@ -107,7 +72,10 @@ public class ControlsStorage {
     newElement.put("location", location);
     newElement.put("name", control.getName());
 
+    newElement.put("date_time_created_utc", Instant.now().toString());
+
     LocatorMatcher locatorMatcher = new LocatorMatcher(control.getLocator().getBy());
+    locatorMatcher.formatWithName(control.getName());
     newElement.put("locator_type", locatorMatcher.getLocatorType());
     newElement.put("locator", locatorMatcher.getLocator());
 
@@ -119,9 +87,11 @@ public class ControlsStorage {
     ArrayList<LinkedTreeMap<?, ?>> ra_newElements = new ArrayList<>();
     ra_newElements.add(newElement);
 
-    if (controls.containsKey(pageID)) {
+    String[] pageObjects = location.split("\\.");
+
+    if (controlsStorage.controls.containsKey(location)) {
       LinkedTreeMap<String, ArrayList<?>> pageID_structure =
-          (LinkedTreeMap<String, ArrayList<?>>) controls.get(pageID);
+          (LinkedTreeMap<String, ArrayList<?>>) controlsStorage.controls.get(location);
       if (pageID_structure.containsKey(typeString)) {
         List<LinkedTreeMap<?, ?>> controlsType_structure =
             (ArrayList<LinkedTreeMap<?, ?>>) pageID_structure.get(typeString);
@@ -144,11 +114,66 @@ public class ControlsStorage {
     } else {
       LinkedTreeMap<String, List<?>> pageID_newStructure = new LinkedTreeMap<>();
       pageID_newStructure.put(typeString, ra_newElements);
-      controls.put(pageID, pageID_newStructure);
+      controlsStorage.controls.put(location, pageID_newStructure);
     }
   }
 
-  private String getPrettyJsonString(LinkedTreeMap<?, ?> json) {
+  public static void writeStorageToFile() throws Exception {
+    ControlsStorage controlsStorage = getControlsFromStorage();
+    if (!(controlsStorage == null
+            || controlsStorage.controls == null
+            || controlsStorage.controls.isEmpty())
+        && controlsStorage.isStorageLoaded) {
+      String prettyJsonString = getPrettyJsonString(controlsStorage.controls);
+      Path filePath = Paths.get(CONTROL_STORAGE_FILE_PATH);
+      Files.write(filePath, prettyJsonString.getBytes());
+    }
+  }
+
+  private Locator getLocatorFromStorage(LinkedTreeMap<?, ?> control) {
+    ControlType controlType =
+        Enum.valueOf(ControlType.class, ((String) control.get("control_type")).toUpperCase());
+    By by =
+        new LocatorMatcher((String) control.get("locator_type"), (String) control.get("locator"))
+            .buildBy();
+    ControlSort controlSort = controlType.defineControlSort((String) control.get("control_sort"));
+    Locator parentLocator =
+        getLocatorFromStorage((LinkedTreeMap<?, ?>) control.get("parent_locator"));
+
+    return new Locator(controlSort, by)
+        .setHasShadowRoot((boolean) control.get("shadow_root"))
+        .setSearchFromRootNode((boolean) control.get("search_from_root_node"))
+        .setParentLocator(parentLocator);
+  }
+
+  private static ControlsStorage getControlsFromStorage() throws Exception {
+    if (controlStoragesList.get(Thread.currentThread().getId()) == null) {
+      controlStoragesList.put(Thread.currentThread().getId(), new ControlsStorage());
+    }
+    ControlsStorage controlsStorage = controlStoragesList.get(Thread.currentThread().getId());
+    controlsStorage.loadStorageFromFile();
+    return controlsStorage;
+  }
+
+  private void loadStorageFromFile() throws Exception {
+    if (!isStorageLoaded) {
+      Path filePath = Paths.get(CONTROL_STORAGE_FILE_PATH);
+
+      if (Files.exists(filePath)) {
+        Scanner sc = new Scanner(filePath);
+        if (sc.hasNext()) {
+          String str = sc.useDelimiter("\\Z").next();
+          LinkedTreeMap<?, ?> controlStorage = new Gson().fromJson(str, LinkedTreeMap.class);
+          if (controlStorage == null) return;
+          controls = (LinkedTreeMap<String, LinkedTreeMap<String, ?>>) controlStorage;
+        }
+      }
+
+      isStorageLoaded = true;
+    }
+  }
+
+  private static String getPrettyJsonString(LinkedTreeMap<?, ?> json) {
     Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     return (gson.toJson(json)).replace("\\\\", "\\");
   }
@@ -160,10 +185,7 @@ public class ControlsStorage {
         id.append(StringUtils.capitalize(s));
       }
       ArrayList<String> keys =
-          (ArrayList<String>)
-              controls.keySet().stream()
-                  .filter(key -> key.contains(id))
-                  .collect(Collectors.toList());
+          (ArrayList<String>) controls.keySet().stream().filter(key -> key.contains(id)).toList();
       keys.forEach(controls::remove);
     } catch (Exception ex) {
       System.out.println(ex.getMessage());
@@ -173,9 +195,7 @@ public class ControlsStorage {
   public void removeTemporaryControls() {
     ArrayList<String> keys =
         (ArrayList<String>)
-            controls.keySet().stream()
-                .filter(pageName -> pageName.contains(prefix))
-                .collect(Collectors.toList());
+            controls.keySet().stream().filter(pageName -> pageName.contains(prefix)).toList();
 
     keys.forEach(controls::remove);
 

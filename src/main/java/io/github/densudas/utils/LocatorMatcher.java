@@ -38,28 +38,14 @@ public class LocatorMatcher {
   }
 
   private How getLocatorType(String locatorTypeString) {
-    How how;
-    switch (locatorTypeString.toUpperCase()) {
-      case "LINKTEXT":
-        how = How.LINK_TEXT;
-        break;
-      case "PARTIALLINKTEXT":
-        how = How.PARTIAL_LINK_TEXT;
-        break;
-      case "TAGNAME":
-        how = How.TAG_NAME;
-        break;
-      case "CLASSNAME":
-        how = How.CLASS_NAME;
-        break;
-      case "CSSSELECTOR":
-        how = How.CSS;
-        break;
-      default:
-        how = How.valueOf(locatorTypeString.toUpperCase());
-        break;
-    }
-    return how;
+    return switch (locatorTypeString.toUpperCase()) {
+      case "LINKTEXT" -> How.LINK_TEXT;
+      case "PARTIALLINKTEXT" -> How.PARTIAL_LINK_TEXT;
+      case "TAGNAME" -> How.TAG_NAME;
+      case "CLASSNAME" -> How.CLASS_NAME;
+      case "CSSSELECTOR" -> How.CSS;
+      default -> How.valueOf(locatorTypeString.toUpperCase());
+    };
   }
 
   private List<String> matchLocatorRegex(By locator) {

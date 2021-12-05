@@ -3,7 +3,6 @@ package io.github.densudas.modals;
 import io.github.densudas.TranslatableLocatorName;
 
 public enum PersonalDataModalLabels implements TranslatableLocatorName {
-
   MANAGE_OPTIONS("Manage options"),
   CONSENT("Consent");
 

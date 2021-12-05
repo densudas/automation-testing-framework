@@ -11,9 +11,14 @@ public class PersonalDataModal<HomePage> implements Locatable {
     this.parentPage = parentPage;
   }
 
-  public HomePage clickConsentButton() {
+  public HomePage clickConsentButton() throws Exception {
     new Button(this, PersonalDataModalLabels.CONSENT).findControl().click();
     return parentPage;
+  }
+
+  public PersonalDataModal<HomePage> click() throws Exception {
+    new Button(this, PersonalDataModalLabels.CONSENT).findControl().click();
+    return this;
   }
 
   @Override

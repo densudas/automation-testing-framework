@@ -10,7 +10,7 @@ public class HomePage extends BasePage<HomePage> {
     return new PersonalDataModal<>(this);
   }
 
-  public HomePage fillInSearchField(String text) throws InterruptedException {
+  public HomePage fillInSearchField(String text) throws Exception {
     Thread.sleep(1000);
     new TextField(this, TextFieldLabels.SEARCH).findControl().fillIn(text);
     return this;

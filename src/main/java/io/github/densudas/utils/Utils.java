@@ -7,7 +7,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.WrapsDriver;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils {
 
@@ -48,5 +51,16 @@ public class Utils {
       }
     }
     return webElement;
+  }
+
+  public static List<String> stringMatch(String string, String regex) {
+    List<String> groups = new ArrayList<>();
+    Matcher matcher = Pattern.compile(regex).matcher(string);
+    if (matcher.find()) {
+      for (int i = 0; i <= matcher.groupCount(); i++) {
+        groups.add(matcher.group(i));
+      }
+    }
+    return groups;
   }
 }

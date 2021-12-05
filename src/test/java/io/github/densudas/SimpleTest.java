@@ -9,13 +9,10 @@ import org.testng.annotations.Test;
 public class SimpleTest {
 
   @Test
-  public void test() throws InterruptedException {
+  public void test() throws Exception {
 
     DriverFactory.getDriver().get("https://www.bbc.com/");
-    new HomePage()
-        .focusOnPersonalDataModal()
-        .clickConsentButton()
-        .fillInSearchField("text");
+    new HomePage().focusOnPersonalDataModal().clickConsentButton().fillInSearchField("text");
 
     System.out.println();
   }

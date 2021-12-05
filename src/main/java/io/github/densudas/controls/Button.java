@@ -16,13 +16,13 @@ public class Button extends BaseControl {
     this.controlType = ControlType.BUTTON;
   }
 
-  public Button(Locatable pageObject,String name) {
+  public Button(Locatable pageObject, String name) {
     this.location = pageObject.getLocation();
     this.name = name;
     this.controlType = ControlType.BUTTON;
   }
 
-  public Button(Locatable pageObject,LocatorName name) {
+  public Button(Locatable pageObject, LocatorName name) {
     this.location = pageObject.getLocation();
     this.name = name.getName();
     this.controlType = ControlType.BUTTON;
@@ -35,9 +35,9 @@ public class Button extends BaseControl {
     this.controlType = ControlType.BUTTON;
   }
 
-  //TODO: check if it can be moved inside constructors
-  public Button findControl() {
-    //TODO: verify and update search mechanism
+  // TODO: check if it can be moved inside constructors
+  public Button findControl() throws Exception {
+    // TODO: verify and update search mechanism
     findLocators();
     return this;
   }
@@ -48,35 +48,24 @@ public class Button extends BaseControl {
     if (!webElement.isEnabled()) throw new ControlNotInteractableException(this);
 
     switch ((ControlSorts.Button) controlSort) {
-      case BUTTON_1, BUTTON_2 ->
-          webElement.click();
-      case BUTTON_3 ->
-          Utils.clickWithJS(webElement);
-      default ->
-          throw new IllegalStateException("No such sort defined: " + controlSort);
+      case BUTTON_1, BUTTON_2 -> webElement.click();
+      case BUTTON_3 -> Utils.clickWithJS(webElement);
+      default -> throw new IllegalStateException("No such sort defined: " + controlSort);
     }
     return this;
   }
 
   public boolean isDisplayed() {
-    boolean isDisplayed;
-    switch ((ControlSorts.Button) controlSort) {
-      case BUTTON_1, BUTTON_2 ->
-          isDisplayed = webElement != null &&  webElement.isDisplayed();
-      default ->
-          throw new IllegalStateException("No such sort defined: " + controlSort);
-    }
-    return isDisplayed;
+    return switch ((ControlSorts.Button) controlSort) {
+      case BUTTON_1, BUTTON_2 -> webElement != null && webElement.isDisplayed();
+      default -> throw new IllegalStateException("No such sort defined: " + controlSort);
+    };
   }
 
   public boolean isHidden() {
-    boolean isDisplayed;
-    switch ((ControlSorts.Button) controlSort) {
-      case BUTTON_1, BUTTON_2 ->
-          isDisplayed = webElement == null || !webElement.isDisplayed();
-      default ->
-          throw new IllegalStateException("No such sort defined: " + controlSort);
-    }
-    return isDisplayed;
+    return switch ((ControlSorts.Button) controlSort) {
+      case BUTTON_1, BUTTON_2 -> webElement == null || !webElement.isDisplayed();
+      default -> throw new IllegalStateException("No such sort defined: " + controlSort);
+    };
   }
 }

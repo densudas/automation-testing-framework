@@ -23,14 +23,14 @@ public abstract class BaseControl {
   private Locator parentLocator;
   private boolean hasShadowRoot;
   protected int index = 1;
-  protected boolean saveToControlsStorage;
+  protected boolean saveToControlsStorage = true;
   protected boolean searchControlInStorage = true;
   protected String location;
 
   protected WebElement webElement;
   protected Throwable error;
 
-  protected void findLocators() {
+  protected void findLocators() throws Exception {
 
     if (!searchControlInStorage) {
 
@@ -43,7 +43,7 @@ public abstract class BaseControl {
 
     } else {
 
-      var locator = new ControlsStorage().getLocatorFromStorage(location, controlType, name);
+      var locator = ControlsStorage.getLocatorFromStorage(location, controlType, name);
       if (locator != null) {
         webElement = findElementByLocator(locator);
         controlSort = locator.getControlSort();
@@ -54,7 +54,11 @@ public abstract class BaseControl {
         for (Locator locatorToBeAssembled : locators) {
           webElement = findElementByLocator(locatorToBeAssembled);
           controlSort = locatorToBeAssembled.getControlSort();
-          if (isElementFound()) break;
+          if (isElementFound()) {
+            this.locator = locatorToBeAssembled;
+            ControlsStorage.addControlToStorage(this);
+            break;
+          }
         }
       }
     }
@@ -81,6 +85,10 @@ public abstract class BaseControl {
   }
 
   public ControlType getControlType() {
+    return controlType;
+  }
+
+  public ControlType getControlSort() {
     return controlType;
   }
 
