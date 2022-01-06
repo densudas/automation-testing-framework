@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class ControlsStorage {
               + "controls.json");
 
   private String prefix = "random";
-  private LinkedTreeMap<String, LinkedTreeMap<String, ?>> controls = new LinkedTreeMap<>();
+  private Map<String, Map> controls = new LinkedTreeMap<>();
   private boolean isStorageLoaded;
   private static Map<Long, ControlsStorage> controlStoragesList = new HashMap<>();
 
@@ -45,7 +46,7 @@ public class ControlsStorage {
     ControlsStorage controlsStorage = getControlsFromStorage();
     if (controlsStorage.controls == null || controlsStorage.controls.isEmpty()) return null;
 
-    LinkedTreeMap<?, ?> pageControls = controlsStorage.controls.get(location);
+    Map<?, ?> pageControls = controlsStorage.controls.get(location);
     if (pageControls != null) {
       ArrayList<?> controls = (ArrayList<?>) pageControls.get(type.toString());
       if (controls != null) {
@@ -66,10 +67,11 @@ public class ControlsStorage {
     String typeString = control.getControlType().getName();
     String location = control.getLocation();
 
-    LinkedTreeMap<String, Object> newElement = new LinkedTreeMap<>();
+    Map<String, Object> newElement = new LinkedTreeMap<>();
     newElement.put("control_type", control.getControlType().getName());
     newElement.put("control_sort", control.getLocator().getControlSort().toString());
     newElement.put("location", location);
+    newElement.put("type", typeString);
     newElement.put("name", control.getName());
 
     newElement.put("date_time_created_utc", Instant.now().toString());
@@ -84,47 +86,92 @@ public class ControlsStorage {
 
     newElement.put("parent_locator", control.getLocator().getParentLocator());
 
-    ArrayList<LinkedTreeMap<?, ?>> ra_newElements = new ArrayList<>();
-    ra_newElements.add(newElement);
-
     String[] pageObjects = location.split("\\.");
 
-    if (controlsStorage.controls.containsKey(location)) {
-      LinkedTreeMap<String, ArrayList<?>> pageID_structure =
-          (LinkedTreeMap<String, ArrayList<?>>) controlsStorage.controls.get(location);
-      if (pageID_structure.containsKey(typeString)) {
-        List<LinkedTreeMap<?, ?>> controlsType_structure =
-            (ArrayList<LinkedTreeMap<?, ?>>) pageID_structure.get(typeString);
-        boolean updated = false;
-        for (int i = 0; i < controlsType_structure.size(); i++) {
-          LinkedTreeMap<?, ?> element = controlsType_structure.get(i);
-          if (element.get("name").equals(control.getName())
-              && element.get("location").equals(location)) {
-            controlsType_structure.set(i, newElement);
-            updated = true;
-            break;
-          }
-        }
-        if (!updated) {
-          controlsType_structure.add(newElement);
-        }
+    putToControlsStructure(controlsStorage.controls, pageObjects, newElement);
+  }
+
+  private static void putToControlsStructure(
+      Map<String, Map> controls, String[] pageObjects, Map<String, Object> newElement) {
+
+    String pageObject = pageObjects[0];
+
+    if (controls.containsKey(pageObject)) {
+      if (pageObjects.length == 1) {
+        putToControlsStructure(
+            (LinkedTreeMap<String, ArrayList<?>>) controls.get(pageObject),
+            (LinkedTreeMap<String, Object>) newElement);
       } else {
-        pageID_structure.put(typeString, ra_newElements);
+        putToControlsStructure(
+            (Map<String, Map>) controls.get(pageObject),
+            Arrays.copyOfRange(pageObjects, 1, pageObjects.length),
+            newElement);
       }
+
     } else {
-      LinkedTreeMap<String, List<?>> pageID_newStructure = new LinkedTreeMap<>();
-      pageID_newStructure.put(typeString, ra_newElements);
-      controlsStorage.controls.put(location, pageID_newStructure);
+
+      if (pageObjects.length == 1) {
+        Map<String, List<Map<String, Object>>> elementsByType = new LinkedTreeMap<>();
+
+        elementsByType.put(
+            (String) newElement.get("type"),
+            new ArrayList<>() {
+              {
+                add(newElement);
+              }
+            });
+
+        controls.put(pageObject, elementsByType);
+
+      } else {
+        controls.put(pageObject, new LinkedTreeMap<>());
+        putToControlsStructure(
+            controls.get(pageObject),
+            Arrays.copyOfRange(pageObjects, 1, pageObjects.length),
+            newElement);
+      }
+    }
+  }
+
+  private static void putToControlsStructure(
+      LinkedTreeMap<String, ArrayList<?>> pageObject, LinkedTreeMap<String, Object> newElement) {
+
+    List<LinkedTreeMap<?, ?>> elementsOfTheType =
+        (ArrayList<LinkedTreeMap<?, ?>>) pageObject.get(newElement.get("type"));
+
+    if (elementsOfTheType != null) {
+
+      boolean updated = false;
+      for (int i = 0; i < elementsOfTheType.size(); i++) {
+        LinkedTreeMap<?, ?> element = elementsOfTheType.get(i);
+        if (element.get("name").equals(newElement.get("name"))
+            && element.get("location").equals(newElement.get("location"))) {
+          elementsOfTheType.set(i, newElement);
+          updated = true;
+          break;
+        }
+      }
+      if (!updated) {
+        elementsOfTheType.add(newElement);
+      }
+
+    } else {
+
+      pageObject.put(
+          (String) newElement.get("type"),
+          new ArrayList<>() {
+            {
+              add(newElement);
+            }
+          });
     }
   }
 
   public static void writeStorageToFile() throws Exception {
     ControlsStorage controlsStorage = getControlsFromStorage();
-    if (!(controlsStorage == null
-            || controlsStorage.controls == null
-            || controlsStorage.controls.isEmpty())
+    if (!(controlsStorage.controls == null || controlsStorage.controls.isEmpty())
         && controlsStorage.isStorageLoaded) {
-      String prettyJsonString = getPrettyJsonString(controlsStorage.controls);
+      String prettyJsonString = getPrettyJsonString((LinkedTreeMap<?, ?>) controlsStorage.controls);
       Path filePath = Paths.get(CONTROL_STORAGE_FILE_PATH);
       Files.write(filePath, prettyJsonString.getBytes());
     }
@@ -165,7 +212,7 @@ public class ControlsStorage {
           String str = sc.useDelimiter("\\Z").next();
           LinkedTreeMap<?, ?> controlStorage = new Gson().fromJson(str, LinkedTreeMap.class);
           if (controlStorage == null) return;
-          controls = (LinkedTreeMap<String, LinkedTreeMap<String, ?>>) controlStorage;
+          controls = (LinkedTreeMap<String, Map>) controlStorage;
         }
       }
 
