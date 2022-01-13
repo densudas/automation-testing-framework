@@ -62,19 +62,19 @@ public class ControlsStorage {
 
   public static void addControlToStorage(BaseControl control) throws Exception {
     if (!control.getSaveToControlsStorage()) return;
-    ControlsStorage controlsStorage = getControlsFromStorage();
+    ControlsStorage controlsFromStorage = getControlsFromStorage();
 
     String typeString = control.getControlType().getName();
     String location = control.getLocation();
 
     Map<String, Object> newElement = new LinkedTreeMap<>();
-    newElement.put("control_type", control.getControlType().getName());
-    newElement.put("control_sort", control.getLocator().getControlSort().toString());
+    newElement.put("control_type", control.getControlType());
+    newElement.put("control_sort", control.getLocator().getControlSort());
     newElement.put("location", location);
     newElement.put("type", typeString);
     newElement.put("name", control.getName());
 
-    newElement.put("date_time_created_utc", Instant.now().toString());
+    newElement.put("date_time_created_utc", Instant.now());
 
     LocatorMatcher locatorMatcher = new LocatorMatcher(control.getLocator().getBy());
     locatorMatcher.formatWithName(control.getName());
@@ -88,7 +88,7 @@ public class ControlsStorage {
 
     String[] pageObjects = location.split("\\.");
 
-    putToControlsStructure(controlsStorage.controls, pageObjects, newElement);
+    putToControlsStructure(controlsFromStorage.controls, pageObjects, newElement);
   }
 
   private static void putToControlsStructure(
@@ -165,6 +165,19 @@ public class ControlsStorage {
             }
           });
     }
+  }
+
+  public static void writeStoragesToFile() throws Exception {
+    ControlsStorage controlsStorage = new ControlsStorage();
+    for (ControlsStorage controlsStorageOfThread : controlStoragesList.values()) {
+      if (!(controlsStorageOfThread.controls == null || controlsStorageOfThread.controls.isEmpty())
+          && controlsStorageOfThread.isStorageLoaded) {
+        mergeStorages(controlsStorageOfThread.controls, controlsStorage.controls);
+      }
+    }
+    String prettyJsonString = getPrettyJsonString((LinkedTreeMap<?, ?>) controlsStorage.controls);
+    Path filePath = Paths.get(CONTROL_STORAGE_FILE_PATH);
+    Files.write(filePath, prettyJsonString.getBytes());
   }
 
   public static void writeStorageToFile() throws Exception {
@@ -271,14 +284,13 @@ public class ControlsStorage {
             });
   }
 
-  public static LinkedTreeMap<String, LinkedTreeMap<String, ?>> mergeStorages(
-      LinkedTreeMap<String, LinkedTreeMap<String, ?>> externalControlStorage,
-      LinkedTreeMap<String, LinkedTreeMap<String, ?>> currentControlStorage) {
+  public static Map<String, Map> mergeStorages(
+      Map<String, Map> externalControlStorage, Map<String, Map> currentControlStorage) {
     for (String key : new ArrayList<>(currentControlStorage.keySet())) {
       if (externalControlStorage.containsKey(key)) {
-        LinkedTreeMap<String, ArrayList<?>> pageExternal =
+        Map<String, ArrayList<?>> pageExternal =
             (LinkedTreeMap<String, ArrayList<?>>) externalControlStorage.get(key);
-        LinkedTreeMap<String, ArrayList<?>> page =
+        Map<String, ArrayList<?>> page =
             (LinkedTreeMap<String, ArrayList<?>>) currentControlStorage.get(key);
         for (String keyControls : new ArrayList<>(page.keySet())) {
           if (pageExternal.containsKey(keyControls)) {

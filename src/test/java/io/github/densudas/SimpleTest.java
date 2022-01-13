@@ -1,6 +1,7 @@
 package io.github.densudas;
 
 import io.github.densudas.pages.indexpage.HomePage;
+import io.github.densudas.utils.ControlsStorage;
 import io.github.densudas.utils.DriverFactory;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
@@ -24,7 +25,8 @@ public class SimpleTest {
   }
 
   @AfterSuite
-  public void tearDown() {
+  public void tearDown() throws Exception {
+    ControlsStorage.writeStoragesToFile();
     DriverFactory.closeAllDrivers();
   }
 }
