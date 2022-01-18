@@ -155,16 +155,6 @@ public class ControlsStorage {
     Files.write(filePath, prettyJsonString.getBytes());
   }
 
-  public static void writeStorageToFile() throws Exception {
-    ControlsStorage controlsStorage = getControlsFromStorage();
-    if (!(controlsStorage.controls == null || controlsStorage.controls.isEmpty())
-        && controlsStorage.isStorageLoaded) {
-      String prettyJsonString = getPrettyJsonString(controlsStorage.controls);
-      Path filePath = Paths.get(CONTROL_STORAGE_FILE_PATH);
-      Files.write(filePath, prettyJsonString.getBytes());
-    }
-  }
-
   private Locator getLocatorFromStorage(Map control) {
     ControlType controlType =
         Enum.valueOf(ControlType.class, ((String) control.get("control_type")).toUpperCase());
@@ -254,7 +244,7 @@ public class ControlsStorage {
     }
   }
 
-  public static Map<Object, Object> mergeStorages(
+  private static Map<Object, Object> mergeStorages(
       Map<Object, Object> currentControlStorage, Map<Object, Object> externalControlStorage) {
 
     if (currentControlStorage.isEmpty()) {

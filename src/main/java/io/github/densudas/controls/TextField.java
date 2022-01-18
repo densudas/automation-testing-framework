@@ -46,8 +46,7 @@ public class TextField extends BaseControl {
     if (!webElement.isEnabled()) throw new ControlNotInteractableException(this);
 
     switch ((ControlSorts.TextField) controlSort) {
-      case TEXT_FIELD_1 ->
-          webElement.sendKeys(text);
+      case TEXT_FIELD_1 -> webElement.sendKeys(text);
       default ->
           throw new IllegalStateException("No such sort defined: " + controlSort);
     }
