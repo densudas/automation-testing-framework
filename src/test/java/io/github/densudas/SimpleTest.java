@@ -13,7 +13,7 @@ public class SimpleTest {
   public void test() throws Exception {
 
     DriverFactory.getDriver().get("https://www.bbc.com/");
-    new HomePage().fillInSearchField("text");
+    new HomePage().focusOnPersonalDataModal().clickConsentButton().fillInSearchField("text");
 
     System.out.println();
   }

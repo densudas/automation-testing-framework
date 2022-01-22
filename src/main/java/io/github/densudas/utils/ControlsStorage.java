@@ -10,6 +10,7 @@ import io.github.densudas.controls.ControlType;
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 
+import javax.annotation.Nullable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,18 +32,60 @@ public class ControlsStorage {
   private boolean isStorageLoaded;
   private static Map<Long, ControlsStorage> controlStoragesList = new LinkedTreeMap<>();
 
+  @Nullable
   public static Locator getLocatorFromStorage(String location, ControlType type, String name)
       throws Exception {
     ControlsStorage controlsStorage = getControlsFromStorage();
     if (controlsStorage.controls == null || controlsStorage.controls.isEmpty()) return null;
 
-    Map pageControls = (Map) controlsStorage.controls.get(location);
-    if (pageControls != null) {
-      ArrayList<?> controls = (ArrayList<?>) pageControls.get(type.toString());
+    String[] pageObjects = location.split("\\.");
+    return getLocatorFromStorage(controlsStorage.controls, pageObjects, location, type, name);
+  }
+
+  @Nullable
+  private static Locator getLocatorFromStorage(
+      Map<Object, Object> controls,
+      String[] pageObjects,
+      String location,
+      ControlType type,
+      String name) {
+
+    String pageObject = pageObjects[0];
+
+    if (controls.containsKey(pageObject)) {
+      if (pageObjects.length == 1) {
+        return getLocatorFromStorage(
+            (Map<Object, List<Map<Object, Object>>>) controls.get(pageObject),
+            location,
+            type,
+            name);
+      } else {
+        return getLocatorFromStorage(
+            (Map<Object, Object>) controls.get(pageObject),
+            Arrays.copyOfRange(pageObjects, 1, pageObjects.length),
+            location,
+            type,
+            name);
+      }
+    }
+    return null;
+  }
+
+  @Nullable
+  private static Locator getLocatorFromStorage(
+      Map<Object, List<Map<Object, Object>>> pageControls,
+      String location,
+      ControlType type,
+      String name) {
+
+    if (pageControls != null && !pageControls.isEmpty()) {
+      List<Map<Object, Object>> controls = pageControls.get(type.toString());
       if (controls != null) {
-        for (Map control : (ArrayList<Map>) controls) {
-          if (control.get("name").equals(name) && control.get("location").equals(location)) {
-            return controlsStorage.getLocatorFromStorage(control);
+        for (Map<Object, Object> control : controls) {
+          if (control.get("name").equals(name)
+              && control.get("type").equals(type)
+              && control.get("location").equals(location)) {
+            return getLocatorFromStorage(control);
           }
         }
       }
@@ -86,7 +129,8 @@ public class ControlsStorage {
 
     if (controls.containsKey(pageObject)) {
       if (pageObjects.length == 1) {
-        putToControlsStructure((Map<Object, ArrayList>) controls.get(pageObject), newElement);
+        putToControlsStructure(
+            (Map<Object, List<Map<Object, Object>>>) controls.get(pageObject), newElement);
       } else {
         putToControlsStructure(
             (Map<Object, Object>) controls.get(pageObject),
@@ -115,15 +159,15 @@ public class ControlsStorage {
   }
 
   private static void putToControlsStructure(
-      Map<Object, ArrayList> pageObject, Map<Object, Object> newElement) {
+      Map<Object, List<Map<Object, Object>>> pageObject, Map<Object, Object> newElement) {
 
-    List<Map> elementsOfTheType = (ArrayList<Map>) pageObject.get(newElement.get("control_type"));
+    List<Map<Object, Object>> elementsOfTheType = pageObject.get(newElement.get("control_type"));
 
     if (elementsOfTheType != null) {
 
       boolean updated = false;
       for (int i = 0; i < elementsOfTheType.size(); i++) {
-        Map element = elementsOfTheType.get(i);
+        Map<Object, Object> element = elementsOfTheType.get(i);
         if (element.get("name").equals(newElement.get("name"))
             && element.get("location").equals(newElement.get("location"))) {
           elementsOfTheType.set(i, newElement);
@@ -136,7 +180,7 @@ public class ControlsStorage {
       }
 
     } else {
-      pageObject.put(newElement.get("control_type"), new ArrayList<Map<Object, Object>>());
+      pageObject.put(newElement.get("control_type"), new ArrayList<>());
       pageObject.get(newElement.get("control_type")).add(newElement);
     }
   }
@@ -155,14 +199,15 @@ public class ControlsStorage {
     Files.write(filePath, prettyJsonString.getBytes());
   }
 
-  private Locator getLocatorFromStorage(Map control) {
+  private static Locator getLocatorFromStorage(Map<Object, Object> control) {
     ControlType controlType =
         Enum.valueOf(ControlType.class, ((String) control.get("control_type")).toUpperCase());
     By by =
         new LocatorMatcher((String) control.get("locator_type"), (String) control.get("locator"))
             .buildBy();
     ControlSort controlSort = controlType.defineControlSort((String) control.get("control_sort"));
-    Locator parentLocator = getLocatorFromStorage((Map) control.get("parent_locator"));
+    Locator parentLocator =
+        getLocatorFromStorage((Map<Object, Object>) control.get("parent_locator"));
 
     return new Locator(controlSort, by)
         .setHasShadowRoot((boolean) control.get("shadow_root"))
@@ -187,9 +232,9 @@ public class ControlsStorage {
         Scanner sc = new Scanner(filePath);
         if (sc.hasNext()) {
           String str = sc.useDelimiter("\\Z").next();
-          Map controlStorage = new Gson().fromJson(str, Map.class);
+          Map<Object, Object> controlStorage = new Gson().fromJson(str, Map.class);
           if (controlStorage == null) return;
-          controls = (Map<Object, Object>) controlStorage;
+          controls = controlStorage;
         }
       }
 
@@ -197,7 +242,7 @@ public class ControlsStorage {
     }
   }
 
-  private static String getPrettyJsonString(Map json) {
+  private static String getPrettyJsonString(Map<Object, Object> json) {
     Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     return gson.toJson(json).replace("\\\\", "\\");
   }
@@ -208,9 +253,8 @@ public class ControlsStorage {
       for (String s : pageName.split(" ")) {
         id.append(StringUtils.capitalize(s));
       }
-      ArrayList<Object> keys =
-          (ArrayList<Object>)
-              controls.keySet().stream().filter(key -> ((String) key).contains(id)).toList();
+      List<Object> keys =
+          controls.keySet().stream().filter(key -> ((String) key).contains(id)).toList();
       keys.forEach(controls::remove);
     } catch (Exception ex) {
       System.out.println(ex.getMessage());
@@ -218,21 +262,21 @@ public class ControlsStorage {
   }
 
   public void removeTemporaryControls() {
-    ArrayList<Object> keys =
-        (ArrayList<Object>)
-            controls.keySet().stream()
-                .filter(pageName -> ((String) pageName).contains(prefix))
-                .toList();
+    List<Object> keys =
+        controls.keySet().stream()
+            .filter(pageName -> ((String) pageName).contains(prefix))
+            .toList();
 
     keys.forEach(controls::remove);
 
     for (Object pageName : controls.keySet()) {
-      Map<Object, ArrayList<?>> page = (Map<Object, ArrayList<?>>) controls.get(pageName);
+      Map<Object, List<Map<Object, Object>>> page =
+          (Map<Object, List<Map<Object, Object>>>) controls.get(pageName);
 
       for (Object controlType : page.keySet()) {
-        ArrayList<Map> controls = (ArrayList<Map>) page.get(controlType);
+        List<Map<Object, Object>> controls = page.get(controlType);
 
-        ArrayList<Map> newList = new ArrayList<>();
+        List<Map<Object, Object>> newList = new ArrayList<>();
         controls.parallelStream()
             .filter(
                 control ->
