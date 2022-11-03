@@ -7,7 +7,7 @@ import io.github.densudas.ControlSort;
 import io.github.densudas.Locator;
 import io.github.densudas.controls.BaseControl;
 import io.github.densudas.controls.ControlType;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 
 import javax.annotation.Nullable;
@@ -26,11 +26,10 @@ public class ControlsStorage {
   private static final String CONTROL_STORAGE_FILE_PATH =
       String.join(
           Utils.FILE_SEPARATOR, Utils.USER_DIR, "src", "main", "resources", "controls.json");
-
+  private static Map<Long, ControlsStorage> controlStoragesList = new LinkedTreeMap<>();
   private String prefix = "random";
   private Map<Object, Object> controls = new LinkedTreeMap<>();
   private boolean isStorageLoaded;
-  private static Map<Long, ControlsStorage> controlStoragesList = new LinkedTreeMap<>();
 
   @Nullable
   public static Locator getLocatorFromStorage(String location, ControlType type, String name)
@@ -224,68 +223,9 @@ public class ControlsStorage {
     return controlsStorage;
   }
 
-  private void loadStorageFromFile() throws Exception {
-    if (!isStorageLoaded) {
-      Path filePath = Paths.get(CONTROL_STORAGE_FILE_PATH);
-
-      if (Files.exists(filePath)) {
-        Scanner sc = new Scanner(filePath);
-        if (sc.hasNext()) {
-          String str = sc.useDelimiter("\\Z").next();
-          Map<Object, Object> controlStorage = new Gson().fromJson(str, Map.class);
-          if (controlStorage == null) return;
-          controls = controlStorage;
-        }
-      }
-
-      isStorageLoaded = true;
-    }
-  }
-
   private static String getPrettyJsonString(Map<Object, Object> json) {
     Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     return gson.toJson(json).replace("\\\\", "\\");
-  }
-
-  public void removePageFromStorage(String pageName) {
-    try {
-      StringBuilder id = new StringBuilder();
-      for (String s : pageName.split(" ")) {
-        id.append(StringUtils.capitalize(s));
-      }
-      List<Object> keys =
-          controls.keySet().stream().filter(key -> ((String) key).contains(id)).toList();
-      keys.forEach(controls::remove);
-    } catch (Exception ex) {
-      System.out.println(ex.getMessage());
-    }
-  }
-
-  public void removeTemporaryControls() {
-    List<Object> keys =
-        controls.keySet().stream()
-            .filter(pageName -> ((String) pageName).contains(prefix))
-            .toList();
-
-    keys.forEach(controls::remove);
-
-    for (Object pageName : controls.keySet()) {
-      Map<Object, List<Map<Object, Object>>> page =
-          (Map<Object, List<Map<Object, Object>>>) controls.get(pageName);
-
-      for (Object controlType : page.keySet()) {
-        List<Map<Object, Object>> controls = page.get(controlType);
-
-        List<Map<Object, Object>> newList = new ArrayList<>();
-        controls.parallelStream()
-            .filter(
-                control ->
-                    ((String) control.get("location")).contains(prefix)
-                        || ((String) control.get("name")).contains(prefix))
-            .forEach(newList::add);
-        controls.removeAll(newList);
-      }
-    }
   }
 
   private static Map<Object, Object> mergeStorages(
@@ -350,5 +290,64 @@ public class ControlsStorage {
     }
 
     return currentControlStorage;
+  }
+
+  private void loadStorageFromFile() throws Exception {
+    if (!isStorageLoaded) {
+      Path filePath = Paths.get(CONTROL_STORAGE_FILE_PATH);
+
+      if (Files.exists(filePath)) {
+        Scanner sc = new Scanner(filePath);
+        if (sc.hasNext()) {
+          String str = sc.useDelimiter("\\Z").next();
+          Map<Object, Object> controlStorage = new Gson().fromJson(str, Map.class);
+          if (controlStorage == null) return;
+          controls = controlStorage;
+        }
+      }
+
+      isStorageLoaded = true;
+    }
+  }
+
+  public void removePageFromStorage(String pageName) {
+    try {
+      StringBuilder id = new StringBuilder();
+      for (String s : pageName.split(" ")) {
+        id.append(StringUtils.capitalize(s));
+      }
+      List<Object> keys =
+          controls.keySet().stream().filter(key -> ((String) key).contains(id)).toList();
+      keys.forEach(controls::remove);
+    } catch (Exception ex) {
+      System.out.println(ex.getMessage());
+    }
+  }
+
+  public void removeTemporaryControls() {
+    List<Object> keys =
+        controls.keySet().stream()
+            .filter(pageName -> ((String) pageName).contains(prefix))
+            .toList();
+
+    keys.forEach(controls::remove);
+
+    for (Object pageName : controls.keySet()) {
+      Map<Object, List<Map<Object, Object>>> page =
+          (Map<Object, List<Map<Object, Object>>>) controls.get(pageName);
+
+      for (Object controlType : page.keySet()) {
+        List<Map<Object, Object>> controls = page.get(controlType);
+
+        List<Map<Object, Object>> newList = new ArrayList<>();
+        controls.parallelStream()
+            .filter(
+                control ->
+                    ((String) control.get("location")).contains(prefix)
+                        || ((String) control.get("name")).contains(prefix))
+            .forEach(newList::add);
+        controls.removeAll(newList);
+      }
+    }
   }
 }
