@@ -1,12 +1,11 @@
 package io.github.densudas.utils;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 public class DriverFactory {
 
@@ -20,7 +19,7 @@ public class DriverFactory {
   }
 
   public static void closeAllDrivers() {
-    webDriverList.values().stream().filter(Objects::nonNull).forEach(WebDriver::close);
+    webDriverList.values().stream().filter(Objects::nonNull).forEach(WebDriver::quit);
   }
 
   private static void newDriverInstance() {
