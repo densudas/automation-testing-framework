@@ -16,16 +16,11 @@ java {
 }
 
 dependencies {
-//    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
-//    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.9.1'
-//    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
-//    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.9.1'
-
     // https://mvnrepository.com/artifact/org.testng/testng
-    testImplementation group: 'org.testng', name: 'testng', version: '7.6.1'
+    testImplementation group: 'org.testng', name: 'testng', version: '7.7.1'
 
     // https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java
-    implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.5.3'
+    implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.7.2'
 
     // https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager
     implementation group: 'io.github.bonigarcia', name: 'webdrivermanager', version: 'latest.release'
@@ -36,5 +31,4 @@ dependencies {
 
 test {
     useTestNG()
-//    useJUnitPlatform()
 }
