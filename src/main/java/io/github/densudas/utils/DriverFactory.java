@@ -13,7 +13,7 @@ public class DriverFactory {
 
   public static WebDriver getDriver() {
     if (WEB_DRIVER_LIST.get(Thread.currentThread().getId()) == null) {
-      newDriverInstance();
+      newDriverInstance(BrowserType.CHROME);
     }
     return WEB_DRIVER_LIST.get(Thread.currentThread().getId());
   }
@@ -22,8 +22,15 @@ public class DriverFactory {
     WEB_DRIVER_LIST.values().stream().filter(Objects::nonNull).forEach(WebDriver::quit);
   }
 
-  private static void newDriverInstance() {
-    WebDriverManager.chromedriver().setup();
-    WEB_DRIVER_LIST.put(Thread.currentThread().getId(), new ChromeDriver());
+  private static void newDriverInstance(BrowserType browserType) {
+    switch (browserType) {
+      case CHROME -> {
+        WebDriverManager.chromedriver().setup();
+        WEB_DRIVER_LIST.put(Thread.currentThread().getId(), new ChromeDriver());
+      }
+      case FIREFOX -> {
+      }
+    }
+
   }
 }

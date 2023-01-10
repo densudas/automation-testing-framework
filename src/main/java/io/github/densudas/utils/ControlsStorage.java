@@ -171,9 +171,7 @@ public class ControlsStorage {
           break;
         }
       }
-      if (!updated) {
-        elementsOfTheType.add(newElement);
-      }
+      if (!updated) elementsOfTheType.add(newElement);
 
     } else {
       pageObject.put(newElement.get("control_type"), new ArrayList<>());
@@ -183,16 +181,18 @@ public class ControlsStorage {
 
   public static void writeStoragesToFile() throws Exception {
     ControlsStorage controlsStorage = new ControlsStorage();
-    for (ControlsStorage controlsStorageOfThread : CONTROL_STORAGES_LIST.values()) {
-      if (!(controlsStorageOfThread.controls == null || controlsStorageOfThread.controls.isEmpty())
-          && controlsStorageOfThread.isStorageLoaded) {
-        controlsStorage.controls =
-            mergeStorages(controlsStorage.controls, controlsStorageOfThread.controls);
+    if (!CONTROL_STORAGES_LIST.isEmpty()) {
+      for (ControlsStorage controlsStorageOfThread : CONTROL_STORAGES_LIST.values()) {
+        if (!(controlsStorageOfThread.controls == null || controlsStorageOfThread.controls.isEmpty())
+            && controlsStorageOfThread.isStorageLoaded) {
+          controlsStorage.controls =
+              mergeStorages(controlsStorage.controls, controlsStorageOfThread.controls);
+        }
       }
+      String prettyJsonString = getPrettyJsonString(controlsStorage.controls);
+      Path filePath = Paths.get(CONTROL_STORAGE_FILE_PATH);
+      Files.write(filePath, prettyJsonString.getBytes());
     }
-    String prettyJsonString = getPrettyJsonString(controlsStorage.controls);
-    Path filePath = Paths.get(CONTROL_STORAGE_FILE_PATH);
-    Files.write(filePath, prettyJsonString.getBytes());
   }
 
   private static Locator getLocatorFromStorage(Map<Object, Object> control) {
