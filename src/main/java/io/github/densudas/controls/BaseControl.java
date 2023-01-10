@@ -1,34 +1,32 @@
 package io.github.densudas.controls;
 
+import static io.github.densudas.utils.Utils.findVisibleElement;
+
 import io.github.densudas.ControlSort;
 import io.github.densudas.Locator;
 import io.github.densudas.Locators;
 import io.github.densudas.utils.ControlsStorage;
 import io.github.densudas.utils.DriverFactory;
 import io.github.densudas.utils.LocatorMatcher;
+import java.util.List;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebElement;
 
-import java.util.List;
-
-import static io.github.densudas.utils.Utils.findVisibleElement;
-
 public abstract class BaseControl {
 
-  private boolean searchFromRootNode;
   protected ControlSort controlSort;
   protected ControlType controlType;
   protected String name;
   protected Locator locator;
-  private Locator parentLocator;
-  private boolean hasShadowRoot;
   protected int index = 1;
   protected boolean saveToControlsStorage = true;
   protected boolean searchControlInStorage = true;
   protected String location;
-
   protected WebElement webElement;
   protected Throwable error;
+  private boolean searchFromRootNode;
+  private Locator parentLocator;
+  private boolean hasShadowRoot;
 
   protected void findLocators() throws Exception {
 

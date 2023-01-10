@@ -7,10 +7,6 @@ import io.github.densudas.ControlSort;
 import io.github.densudas.Locator;
 import io.github.densudas.controls.BaseControl;
 import io.github.densudas.controls.ControlType;
-import org.apache.commons.lang3.StringUtils;
-import org.openqa.selenium.By;
-
-import javax.annotation.Nullable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,14 +16,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.By;
 
 public class ControlsStorage {
 
-  private static final String CONTROL_STORAGE_FILE_PATH =
-      String.join(
-          Utils.FILE_SEPARATOR, Utils.USER_DIR, "src", "main", "resources", "controls.json");
-  private static Map<Long, ControlsStorage> controlStoragesList = new LinkedTreeMap<>();
-  private String prefix = "random";
+  private static final String CONTROL_STORAGE_FILE_PATH = String.join(Utils.FILE_SEPARATOR,
+      Utils.USER_DIR, "src", "main", "resources", "controls.json");
+  private static final Map<Long, ControlsStorage> CONTROL_STORAGES_LIST = new LinkedTreeMap<>();
+  private final String PREFIX = "random";
   private Map<Object, Object> controls = new LinkedTreeMap<>();
   private boolean isStorageLoaded;
 
@@ -121,9 +119,8 @@ public class ControlsStorage {
     putToControlsStructure(controlsFromStorage.controls, pageObjects, newElement);
   }
 
-  private static void putToControlsStructure(
-      Map<Object, Object> controls, String[] pageObjects, Map<Object, Object> newElement) {
-
+  private static void putToControlsStructure(Map<Object, Object> controls, String[] pageObjects,
+                                             Map<Object, Object> newElement) {
     String pageObject = pageObjects[0];
 
     if (controls.containsKey(pageObject)) {
@@ -157,8 +154,8 @@ public class ControlsStorage {
     }
   }
 
-  private static void putToControlsStructure(
-      Map<Object, List<Map<Object, Object>>> pageObject, Map<Object, Object> newElement) {
+  private static void putToControlsStructure(Map<Object, List<Map<Object, Object>>> pageObject,
+                                             Map<Object, Object> newElement) {
 
     List<Map<Object, Object>> elementsOfTheType = pageObject.get(newElement.get("control_type"));
 
@@ -186,7 +183,7 @@ public class ControlsStorage {
 
   public static void writeStoragesToFile() throws Exception {
     ControlsStorage controlsStorage = new ControlsStorage();
-    for (ControlsStorage controlsStorageOfThread : controlStoragesList.values()) {
+    for (ControlsStorage controlsStorageOfThread : CONTROL_STORAGES_LIST.values()) {
       if (!(controlsStorageOfThread.controls == null || controlsStorageOfThread.controls.isEmpty())
           && controlsStorageOfThread.isStorageLoaded) {
         controlsStorage.controls =
@@ -199,14 +196,12 @@ public class ControlsStorage {
   }
 
   private static Locator getLocatorFromStorage(Map<Object, Object> control) {
-    ControlType controlType =
-        Enum.valueOf(ControlType.class, ((String) control.get("control_type")).toUpperCase());
-    By by =
-        new LocatorMatcher((String) control.get("locator_type"), (String) control.get("locator"))
-            .buildBy();
+    ControlType controlType = Enum.valueOf(ControlType.class, ((String) control.get("control_type"))
+        .toUpperCase());
+    By by = new LocatorMatcher((String) control.get("locator_type"), (String) control.get("locator"))
+        .buildBy();
     ControlSort controlSort = controlType.defineControlSort((String) control.get("control_sort"));
-    Locator parentLocator =
-        getLocatorFromStorage((Map<Object, Object>) control.get("parent_locator"));
+    Locator parentLocator = getLocatorFromStorage((Map<Object, Object>) control.get("parent_locator"));
 
     return new Locator(controlSort, by)
         .setHasShadowRoot((boolean) control.get("shadow_root"))
@@ -215,10 +210,10 @@ public class ControlsStorage {
   }
 
   private static ControlsStorage getControlsFromStorage() throws Exception {
-    if (controlStoragesList.get(Thread.currentThread().getId()) == null) {
-      controlStoragesList.put(Thread.currentThread().getId(), new ControlsStorage());
+    if (CONTROL_STORAGES_LIST.get(Thread.currentThread().getId()) == null) {
+      CONTROL_STORAGES_LIST.put(Thread.currentThread().getId(), new ControlsStorage());
     }
-    ControlsStorage controlsStorage = controlStoragesList.get(Thread.currentThread().getId());
+    ControlsStorage controlsStorage = CONTROL_STORAGES_LIST.get(Thread.currentThread().getId());
     controlsStorage.loadStorageFromFile();
     return controlsStorage;
   }
@@ -248,8 +243,7 @@ public class ControlsStorage {
             boolean updated = false;
 
             for (int i = 0; i < elements.size(); i++) {
-              Instant dateTime =
-                  Instant.parse((String) elements.get(i).get("date_time_created_utc"));
+              Instant dateTime = Instant.parse((String) elements.get(i).get("date_time_created_utc"));
               ControlType controlType = (ControlType) elements.get(i).get("control_type");
               ControlSort controlSort = (ControlSort) elements.get(i).get("control_sort");
               String location = (String) elements.get(i).get("location");
@@ -260,9 +254,8 @@ public class ControlsStorage {
                   && extElement.get("location").equals(location)
                   && extElement.get("name").equals(name)) {
 
-                if ((Instant.parse((String) elements.get(i).get("date_time_created_utc")))
-                        .compareTo(dateTime)
-                    >= 0) {
+                if (Instant.parse((String) elements.get(i)
+                    .get("date_time_created_utc")).compareTo(dateTime) >= 0) {
                   elements.set(i, extElement);
                   updated = true;
                   break;
@@ -274,9 +267,7 @@ public class ControlsStorage {
               }
             }
 
-            if (!updated) {
-              elements.add(extElement);
-            }
+            if (!updated) elements.add(extElement);
           }
         } else {
           mergeStorages(
@@ -327,7 +318,7 @@ public class ControlsStorage {
   public void removeTemporaryControls() {
     List<Object> keys =
         controls.keySet().stream()
-            .filter(pageName -> ((String) pageName).contains(prefix))
+            .filter(pageName -> ((String) pageName).contains(PREFIX))
             .toList();
 
     keys.forEach(controls::remove);
@@ -341,10 +332,8 @@ public class ControlsStorage {
 
         List<Map<Object, Object>> newList = new ArrayList<>();
         controls.parallelStream()
-            .filter(
-                control ->
-                    ((String) control.get("location")).contains(prefix)
-                        || ((String) control.get("name")).contains(prefix))
+            .filter(control -> ((String) control.get("location")).contains(PREFIX)
+                || ((String) control.get("name")).contains(PREFIX))
             .forEach(newList::add);
         controls.removeAll(newList);
       }

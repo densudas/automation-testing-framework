@@ -9,21 +9,21 @@ import org.openqa.selenium.chrome.ChromeDriver;
 
 public class DriverFactory {
 
-  private static Map<Long, WebDriver> webDriverList = new HashMap<>();
+  private static final Map<Long, WebDriver> WEB_DRIVER_LIST = new HashMap<>();
 
   public static WebDriver getDriver() {
-    if (webDriverList.get(Thread.currentThread().getId()) == null) {
+    if (WEB_DRIVER_LIST.get(Thread.currentThread().getId()) == null) {
       newDriverInstance();
     }
-    return webDriverList.get(Thread.currentThread().getId());
+    return WEB_DRIVER_LIST.get(Thread.currentThread().getId());
   }
 
   public static void closeAllDrivers() {
-    webDriverList.values().stream().filter(Objects::nonNull).forEach(WebDriver::quit);
+    WEB_DRIVER_LIST.values().stream().filter(Objects::nonNull).forEach(WebDriver::quit);
   }
 
   private static void newDriverInstance() {
     WebDriverManager.chromedriver().setup();
-    webDriverList.put(Thread.currentThread().getId(), new ChromeDriver());
+    WEB_DRIVER_LIST.put(Thread.currentThread().getId(), new ChromeDriver());
   }
 }

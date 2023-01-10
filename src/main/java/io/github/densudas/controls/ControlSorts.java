@@ -10,6 +10,14 @@ public class ControlSorts {
     BUTTON_3;
 
     private final ControlType controlType = ControlType.BUTTON;
+    private String description = "";
+
+    Button(String description) {
+      this.description = description;
+    }
+
+    Button() {
+    }
 
     public ControlType getControlType() {
       return controlType;
@@ -20,6 +28,14 @@ public class ControlSorts {
     TEXT_FIELD_1;
 
     private final ControlType controlType = ControlType.TEXT_FIELD;
+    private String description = "";
+
+    TextField(String description) {
+      this.description = description;
+    }
+
+    TextField() {
+    }
 
     public ControlType getControlType() {
       return controlType;

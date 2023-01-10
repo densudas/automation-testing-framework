@@ -47,8 +47,7 @@ public class TextField extends BaseControl {
 
     switch ((ControlSorts.TextField) controlSort) {
       case TEXT_FIELD_1 -> webElement.sendKeys(text);
-      default ->
-          throw new IllegalStateException("No such sort defined: " + controlSort);
+      default -> throw new IllegalStateException("No such sort defined: " + controlSort);
     }
     return this;
   }

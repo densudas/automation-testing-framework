@@ -43,7 +43,6 @@ public class Button extends BaseControl {
   }
 
   public Button click() throws ControlNotInteractableException {
-
     if (webElement == null) throw new ControlNotFoundException(this);
     if (!webElement.isEnabled()) throw new ControlNotInteractableException(this);
 
