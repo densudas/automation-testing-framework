@@ -53,9 +53,9 @@ public class DriverFactory {
 
   private static ChromeDriver getChromeDriverInstance() {
     ChromeOptions options = new ChromeOptions();
-    options.addArguments("start-maximized");
-    options.addArguments("ignore-ssl-errors=yes");
-    options.addArguments("ignore-certificate-errors");
+    options.addArguments("--start-maximized");
+    options.addArguments("--ignore-ssl-errors=yes");
+    options.addArguments("--ignore-certificate-errors");
     return new ChromeDriver(options);
   }
 }
