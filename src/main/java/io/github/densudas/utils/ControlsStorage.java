@@ -25,7 +25,7 @@ public class ControlsStorage {
   private static final String CONTROL_STORAGE_FILE_PATH = String.join(Utils.FILE_SEPARATOR,
       Utils.USER_DIR, "src", "main", "resources", "controls.json");
   private static final Map<Long, ControlsStorage> CONTROL_STORAGES_LIST = new LinkedTreeMap<>();
-  private final String PREFIX = "random";
+  private final String prefix = "random";
   private Map<Object, Object> controls = new LinkedTreeMap<>();
   private boolean isStorageLoaded;
 
@@ -318,7 +318,7 @@ public class ControlsStorage {
   public void removeTemporaryControls() {
     List<Object> keys =
         controls.keySet().stream()
-            .filter(pageName -> ((String) pageName).contains(PREFIX))
+            .filter(pageName -> ((String) pageName).contains(prefix))
             .toList();
 
     keys.forEach(controls::remove);
@@ -332,8 +332,8 @@ public class ControlsStorage {
 
         List<Map<Object, Object>> newList = new ArrayList<>();
         controls.parallelStream()
-            .filter(control -> ((String) control.get("location")).contains(PREFIX)
-                || ((String) control.get("name")).contains(PREFIX))
+            .filter(control -> ((String) control.get("location")).contains(prefix)
+                || ((String) control.get("name")).contains(prefix))
             .forEach(newList::add);
         controls.removeAll(newList);
       }

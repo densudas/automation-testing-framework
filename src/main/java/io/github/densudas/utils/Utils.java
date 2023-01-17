@@ -19,15 +19,15 @@ public class Utils {
   public static final String FILE_SEPARATOR = System.getProperty("file.separator");
   public static final String USER_DIR = System.getProperty("user.dir");
 
-  public static void clickWithJS(SearchContext context) {
+  public static void clickWithJS(final SearchContext context) {
     getJSExecutor(context).executeScript("arguments[0].click()", context);
   }
 
-  public static JavascriptExecutor getJSExecutor(SearchContext context) {
+  public static JavascriptExecutor getJSExecutor(final SearchContext context) {
     return (JavascriptExecutor) getWebDriver(context);
   }
 
-  public static WebDriver getWebDriver(SearchContext context) {
+  public static WebDriver getWebDriver(final SearchContext context) {
     if (context instanceof WebDriver) {
       return (WebDriver) context;
     }
@@ -39,11 +39,11 @@ public class Utils {
     return ((WrapsDriver) context).getWrappedDriver();
   }
 
-  public static WebElement findVisibleElement(By by) {
+  public static WebElement findVisibleElement(final By by) {
     return findVisibleElement(DriverFactory.getDriver(), by);
   }
 
-  public static WebElement findVisibleElement(SearchContext fromNode, By by) {
+  public static WebElement findVisibleElement(final SearchContext fromNode, By by) {
     WebElement webElement = null;
     List<WebElement> foundElements = fromNode.findElements(by);
     for (WebElement element : foundElements) {
@@ -55,7 +55,7 @@ public class Utils {
     return webElement;
   }
 
-  public static List<String> stringMatch(String string, String regex) {
+  public static List<String> stringMatch(final String string, final String regex) {
     List<String> groups = new ArrayList<>();
     Matcher matcher = Pattern.compile(regex).matcher(string);
     if (matcher.find()) {
@@ -66,21 +66,21 @@ public class Utils {
     return groups;
   }
 
-  public static void waitForElementToBeDisplayed(By by) {
+  public static void waitForElementToBeDisplayed(final By by) {
     FluentWait<WebDriver> wait = new FluentWait<>(DriverFactory.getDriver());
     wait.withTimeout(Duration.ofSeconds(20));
     wait.pollingEvery(Duration.ofSeconds(1));
     wait.until(ExpectedConditions.visibilityOfElementLocated(by));
   }
 
-  public static void waitForElementToBeDisplayed(WebElement element) {
+  public static void waitForElementToBeDisplayed(final WebElement element) {
     FluentWait<WebDriver> wait = new FluentWait<>(DriverFactory.getDriver());
     wait.withTimeout(Duration.ofSeconds(20));
     wait.pollingEvery(Duration.ofSeconds(1));
     wait.until(ExpectedConditions.visibilityOf(element));
   }
 
-  public static void waitForInvisibilityOfElementLocated(By by) {
+  public static void waitForInvisibilityOfElementLocated(final By by) {
     FluentWait<WebDriver> wait = new FluentWait<>(DriverFactory.getDriver());
     wait.withTimeout(Duration.ofSeconds(20));
     wait.pollingEvery(Duration.ofSeconds(1));

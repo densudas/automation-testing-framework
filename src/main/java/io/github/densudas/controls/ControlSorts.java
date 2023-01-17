@@ -22,6 +22,10 @@ public class ControlSorts {
     public ControlType getControlType() {
       return controlType;
     }
+
+    public String getDescription() {
+      return description;
+    }
   }
 
   public enum TextField implements ControlSort {
@@ -39,6 +43,10 @@ public class ControlSorts {
 
     public ControlType getControlType() {
       return controlType;
+    }
+
+    public String getDescription() {
+      return description;
     }
   }
 }

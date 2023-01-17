@@ -1,12 +1,11 @@
 package io.github.densudas.utils;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.support.How;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.openqa.selenium.By;
+import org.openqa.selenium.support.How;
 
 public class LocatorMatcher {
 
