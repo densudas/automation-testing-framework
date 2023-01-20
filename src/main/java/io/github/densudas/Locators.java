@@ -10,10 +10,10 @@ import org.openqa.selenium.By;
 
 public class Locators {
 
-  public static Map<ControlType, List<Locator>> locatorsList = new HashMap<>();
+  public static final Map<ControlType, List<Locator>> LOCATORS_LIST = new HashMap<>();
 
   static {
-    locatorsList.put(
+    LOCATORS_LIST.put(
         ControlType.BUTTON,
         new ArrayList<>() {
           {
@@ -27,7 +27,7 @@ public class Locators {
                 By.xpath(".//input[@type='submit' and @aria-label=\"%s\"]")));
           }
         });
-    locatorsList.put(
+    LOCATORS_LIST.put(
         ControlType.TEXT_FIELD,
         new ArrayList<>() {
           {
@@ -42,6 +42,6 @@ public class Locators {
   }
 
   public static List<Locator> getLocatorsByType(ControlType controlType) {
-    return locatorsList.get(controlType);
+    return LOCATORS_LIST.get(controlType);
   }
 }

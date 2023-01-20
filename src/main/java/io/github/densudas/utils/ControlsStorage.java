@@ -210,12 +210,11 @@ public class ControlsStorage {
   }
 
   private static ControlsStorage getControlsFromStorage() throws Exception {
-    if (CONTROL_STORAGES_LIST.get(Thread.currentThread().getId()) == null) {
-      CONTROL_STORAGES_LIST.put(Thread.currentThread().getId(), new ControlsStorage());
+    long currentThreadId = Thread.currentThread().getId();
+    if (CONTROL_STORAGES_LIST.get(currentThreadId) == null) {
+      CONTROL_STORAGES_LIST.put(currentThreadId, new ControlsStorage());
     }
-    ControlsStorage controlsStorage = CONTROL_STORAGES_LIST.get(Thread.currentThread().getId());
-    controlsStorage.loadStorageFromFile();
-    return controlsStorage;
+    return CONTROL_STORAGES_LIST.get(currentThreadId).loadStorageFromFile();
   }
 
   private static String getPrettyJsonString(Map<Object, Object> json) {
@@ -283,7 +282,7 @@ public class ControlsStorage {
     return currentControlStorage;
   }
 
-  private void loadStorageFromFile() throws Exception {
+  private ControlsStorage loadStorageFromFile() throws Exception {
     if (!isStorageLoaded) {
       Path filePath = Paths.get(CONTROL_STORAGE_FILE_PATH);
 
@@ -292,13 +291,14 @@ public class ControlsStorage {
         if (sc.hasNext()) {
           String str = sc.useDelimiter("\\Z").next();
           Map<Object, Object> controlStorage = new Gson().fromJson(str, Map.class);
-          if (controlStorage == null) return;
+          if (controlStorage == null) return this;
           controls = controlStorage;
         }
       }
 
       isStorageLoaded = true;
     }
+    return this;
   }
 
   public void removePageFromStorage(String pageName) {

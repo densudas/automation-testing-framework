@@ -8,7 +8,8 @@ public class SimpleTest extends BaseTest {
   @Test
   public void test() throws Exception {
 
-    HomePage.navigateToPage()
+    HomePage
+        .navigateToPage()
         .focusOnPersonalDataModal()
         .clickConsentButton()
         .fillInSearchField("text");
