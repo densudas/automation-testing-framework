@@ -10,8 +10,7 @@ public class SimpleTest extends BaseTest {
 
     HomePage
         .navigateToPage()
-        .focusOnPersonalDataModal()
-        .clickConsentButton()
+        .clickSearch()
         .fillInSearchField("text");
 
     System.out.println();

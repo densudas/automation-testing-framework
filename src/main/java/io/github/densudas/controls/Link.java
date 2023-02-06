@@ -7,26 +7,26 @@ import io.github.densudas.LocatorName;
 import io.github.densudas.exceptions.ControlNotFoundException;
 import io.github.densudas.exceptions.ControlNotInteractableException;
 
-public class TextField extends BaseControl {
+public class Link extends BaseControl {
 
-  public TextField(Locatable pageObject, String name, int index) {
+  public Link(Locatable pageObject, String name, int index) {
     super(pageObject, name, index);
-    this.controlType = ControlType.TEXT_FIELD;
+    this.controlType = ControlType.LINK;
   }
 
-  public TextField(Locatable pageObject, String name) {
+  public Link(Locatable pageObject, String name) {
     super(pageObject, name);
-    this.controlType = ControlType.TEXT_FIELD;
+    this.controlType = ControlType.LINK;
   }
 
-  public TextField(Locatable pageObject, LocatorName name) {
+  public Link(Locatable pageObject, LocatorName name) {
     super(pageObject, name);
-    this.controlType = ControlType.TEXT_FIELD;
+    this.controlType = ControlType.LINK;
   }
 
-  public TextField(Locator locator) {
+  public Link(Locator locator) {
     super(locator);
-    this.controlType = ControlType.TEXT_FIELD;
+    this.controlType = ControlType.LINK;
   }
 
   // TODO: check if it can be moved inside constructors
@@ -36,36 +36,36 @@ public class TextField extends BaseControl {
     return new Actions(this);
   }
 
+
   public class Actions extends BaseActions {
 
-    private TextField control;
+    private Link control;
 
-    Actions(TextField control) {
+    Actions(Link control) {
       this.control = control;
     }
 
-    public TextField fillIn(String text) throws ControlNotInteractableException {
-
+    public Link click() throws ControlNotInteractableException {
       if (webElement == null) throw new ControlNotFoundException(control);
       if (!webElement.isEnabled()) throw new ControlNotInteractableException(control);
 
-      switch ((ControlSorts.TextField) controlSort) {
-        case TEXT_FIELD_1 -> webElement.sendKeys(text);
+      switch ((ControlSorts.Link) controlSort) {
+        case LINK_1 -> webElement.click();
         default -> throw new IllegalStateException("No such sort defined: " + controlSort);
       }
       return control;
     }
 
     public boolean isDisplayed() {
-      return switch ((ControlSorts.TextField) controlSort) {
-        case TEXT_FIELD_1 -> webElement != null && webElement.isDisplayed();
+      return switch ((ControlSorts.Link) controlSort) {
+        case LINK_1 -> webElement != null && webElement.isDisplayed();
         default -> throw new IllegalStateException("No such sort defined: " + controlSort);
       };
     }
 
     public boolean isHidden() {
-      return switch ((ControlSorts.TextField) controlSort) {
-        case TEXT_FIELD_1 -> webElement == null || !webElement.isDisplayed();
+      return switch ((ControlSorts.Link) controlSort) {
+        case LINK_1 -> webElement == null || !webElement.isDisplayed();
         default -> throw new IllegalStateException("No such sort defined: " + controlSort);
       };
     }

@@ -5,7 +5,8 @@ import java.util.Arrays;
 
 public enum ControlType {
   BUTTON("Button", ControlSorts.Button.values()),
-  TEXT_FIELD("Text field", ControlSorts.TextField.values());
+  TEXT_FIELD("Text field", ControlSorts.TextField.values()),
+  LINK("Link", ControlSorts.TextField.values());
 
   private final ControlSort[] controlSorts;
   private String name;

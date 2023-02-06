@@ -3,7 +3,9 @@ package io.github.densudas.controls;
 import static io.github.densudas.utils.Utils.findVisibleElement;
 
 import io.github.densudas.ControlSort;
+import io.github.densudas.Locatable;
 import io.github.densudas.Locator;
+import io.github.densudas.LocatorName;
 import io.github.densudas.Locators;
 import io.github.densudas.utils.ControlsStorage;
 import io.github.densudas.utils.DriverFactory;
@@ -27,6 +29,28 @@ public abstract class BaseControl {
   private boolean searchFromRootNode;
   private Locator parentLocator;
   private boolean hasShadowRoot;
+
+  public BaseControl(Locatable pageObject, String name, int index) {
+    this.location = pageObject.getLocation();
+    this.name = name;
+    this.index = index;
+  }
+
+  public BaseControl(Locatable pageObject, String name) {
+    this.location = pageObject.getLocation();
+    this.name = name;
+  }
+
+  public BaseControl(Locatable pageObject, LocatorName name) {
+    this.location = pageObject.getLocation();
+    this.name = name.getName();
+  }
+
+  public BaseControl(Locator locator) {
+    this.saveToControlsStorage = false;
+    this.searchControlInStorage = false;
+    this.locator = locator;
+  }
 
   protected void findLocators() throws Exception {
 

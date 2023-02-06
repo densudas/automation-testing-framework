@@ -49,4 +49,26 @@ public class ControlSorts {
       return description;
     }
   }
+
+  public enum Link implements ControlSort {
+    LINK_1;
+
+    private final ControlType controlType = ControlType.LINK;
+    private String description = "";
+
+    Link(String description) {
+      this.description = description;
+    }
+
+    Link() {
+    }
+
+    public ControlType getControlType() {
+      return controlType;
+    }
+
+    public String getDescription() {
+      return description;
+    }
+  }
 }
