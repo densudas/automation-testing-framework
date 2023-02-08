@@ -3,6 +3,7 @@ package io.github.densudas.utils;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.openqa.selenium.By;
@@ -67,23 +68,21 @@ public class Utils {
   }
 
   public static void waitForElementToBeDisplayed(final By by) {
-    FluentWait<WebDriver> wait = new FluentWait<>(DriverFactory.getDriver());
-    wait.withTimeout(Duration.ofSeconds(20));
-    wait.pollingEvery(Duration.ofSeconds(1));
-    wait.until(ExpectedConditions.visibilityOfElementLocated(by));
+    waitUntil(ExpectedConditions.visibilityOfElementLocated(by));
   }
 
   public static void waitForElementToBeDisplayed(final WebElement element) {
-    FluentWait<WebDriver> wait = new FluentWait<>(DriverFactory.getDriver());
-    wait.withTimeout(Duration.ofSeconds(20));
-    wait.pollingEvery(Duration.ofSeconds(1));
-    wait.until(ExpectedConditions.visibilityOf(element));
+    waitUntil(ExpectedConditions.visibilityOf(element));
   }
 
   public static void waitForInvisibilityOfElementLocated(final By by) {
+    waitUntil(ExpectedConditions.invisibilityOfElementLocated(by));
+  }
+
+  public static <V> V waitUntil(Function<? super WebDriver, V> isTrue) {
     FluentWait<WebDriver> wait = new FluentWait<>(DriverFactory.getDriver());
     wait.withTimeout(Duration.ofSeconds(20));
     wait.pollingEvery(Duration.ofSeconds(1));
-    wait.until(ExpectedConditions.invisibilityOfElementLocated(by));
+    return wait.until(isTrue);
   }
 }
