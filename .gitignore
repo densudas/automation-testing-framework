@@ -154,3 +154,5 @@ hs_err_pid*
 !gradle-wrapper.jar
 
 src/main/resources/controls.json
+
+test_results
