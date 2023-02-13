@@ -24,6 +24,10 @@ public class Utils {
     getJSExecutor(context).executeScript("arguments[0].click()", context);
   }
 
+  public static JavascriptExecutor getJSExecutor() {
+    return (JavascriptExecutor) DriverFactory.getDriver();
+  }
+
   public static JavascriptExecutor getJSExecutor(final SearchContext context) {
     return (JavascriptExecutor) getWebDriver(context);
   }
@@ -79,10 +83,22 @@ public class Utils {
     waitUntil(ExpectedConditions.invisibilityOfElementLocated(by));
   }
 
-  public static <V> V waitUntil(Function<? super WebDriver, V> isTrue) {
+  public static <V> V waitUntil(final Function<? super WebDriver, V> isTrue) {
     FluentWait<WebDriver> wait = new FluentWait<>(DriverFactory.getDriver());
     wait.withTimeout(Duration.ofSeconds(20));
     wait.pollingEvery(Duration.ofSeconds(1));
     return wait.until(isTrue);
   }
+
+  public static void scrollToElement(final WebElement element) {
+    getJSExecutor(element).executeScript(
+        "const rect = element.getBoundingClientRect();" +
+            "if (rect.top >= 0 &&" +
+            "rect.left >= 0 &&" +
+            "rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&" +
+            "rect.right <= (window.innerWidth || document.documentElement.clientWidth)" +
+            ") arguments[0].scrollIntoView(true);",
+        element);
+  }
+
 }
