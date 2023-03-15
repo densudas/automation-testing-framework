@@ -92,7 +92,7 @@ public class Utils {
 
   public static void scrollToElement(final WebElement element) {
     getJSExecutor(element).executeScript(
-        "const rect = element.getBoundingClientRect();" +
+        "const rect = arguments[0].getBoundingClientRect();" +
             "if (rect.top >= 0 &&" +
             "rect.left >= 0 &&" +
             "rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&" +
