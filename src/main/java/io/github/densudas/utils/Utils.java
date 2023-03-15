@@ -97,7 +97,7 @@ public class Utils {
             "rect.left >= 0 &&" +
             "rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&" +
             "rect.right <= (window.innerWidth || document.documentElement.clientWidth)" +
-            ") arguments[0].scrollIntoView(true);",
+            ") arguments[0].scrollIntoView({block: 'center'});",
         element);
   }
 
