@@ -17,7 +17,7 @@ java {
 
 dependencies {
     // https://mvnrepository.com/artifact/org.testng/testng
-    testImplementation group: 'org.testng', name: 'testng', version: '7.8.0'
+    implementation group: 'org.testng', name: 'testng', version: '7.8.0'
 
     // https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java
     implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.11.0'
