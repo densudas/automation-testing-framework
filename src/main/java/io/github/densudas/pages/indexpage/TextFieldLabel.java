@@ -1,15 +1,15 @@
-package io.github.densudas.modals;
+package io.github.densudas.pages.indexpage;
 
 import io.github.densudas.TranslatableLocatorName;
 import java.util.Locale;
 
-public enum PersonalDataModalLabels implements TranslatableLocatorName {
-  MANAGE_OPTIONS("Manage options"),
-  CONSENT("Consent");
+public enum TextFieldLabel implements TranslatableLocatorName {
+
+  SEARCH("Search");
 
   private final String name;
 
-  PersonalDataModalLabels(String name) {
+  TextFieldLabel(String name) {
     this.name = name;
   }
 

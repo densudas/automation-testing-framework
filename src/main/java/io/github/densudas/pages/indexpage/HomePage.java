@@ -26,13 +26,13 @@ public class HomePage extends BasePage<HomePage> {
 
   public HomePage clickSearch() throws Exception {
     Thread.sleep(1000);
-    new Link(this, LinkLabels.SEARCH_BBC).findControl().click();
+    new Link(this, LinkLabel.SEARCH_BBC).findControl().click();
     return this;
   }
 
   public HomePage fillInSearchField(String text) throws Exception {
     Thread.sleep(1000);
-    new TextField(this, TextFieldLabels.SEARCH).findControl().fillIn(text);
+    new TextField(this, TextFieldLabel.SEARCH).findControl().fillIn(text);
     return this;
   }
 

@@ -1,22 +1,22 @@
 package io.github.densudas.pages.indexpage;
 
 import io.github.densudas.TranslatableLocatorName;
+import java.util.Locale;
 
-public enum TextFieldLabels implements TranslatableLocatorName {
-
-  SEARCH("Search");
+public enum ButtonLabel implements TranslatableLocatorName {
+  ;
 
   private final String name;
 
-  TextFieldLabels(String name) {
+  ButtonLabel(String name) {
     this.name = name;
   }
 
   public String getName() {
-    return name;
+    return getName(Locale.ENGLISH);
   }
 
-  public String getEnglishName() {
+  public String getName(Locale locale) {
     return name;
   }
 }

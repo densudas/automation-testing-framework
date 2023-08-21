@@ -1,6 +1,8 @@
 package io.github.densudas;
 
+import java.util.Locale;
+
 public interface TranslatableLocatorName extends LocatorName {
 
-  String getEnglishName();
+  String getName(Locale locale);
 }
