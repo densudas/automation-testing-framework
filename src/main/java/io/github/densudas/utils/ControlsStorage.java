@@ -22,6 +22,8 @@ import org.openqa.selenium.By;
 
 public class ControlsStorage {
 
+  //TODO: refactor everything here
+
   private static final String CONTROL_STORAGE_FILE_PATH = String.join(Utils.FILE_SEPARATOR,
       Utils.USER_DIR, "src", "main", "resources", "controls.json");
   private static final Map<Long, ControlsStorage> CONTROL_STORAGES_LIST = new LinkedTreeMap<>();
@@ -287,13 +289,15 @@ public class ControlsStorage {
       Path filePath = Paths.get(CONTROL_STORAGE_FILE_PATH);
 
       if (Files.exists(filePath)) {
-        Scanner sc = new Scanner(filePath);
-        if (sc.hasNext()) {
-          String str = sc.useDelimiter("\\Z").next();
-          Map<Object, Object> controlStorage = new Gson().fromJson(str, Map.class);
-          if (controlStorage == null) return this;
-          controls = controlStorage;
+        try (Scanner sc = new Scanner(filePath)) {
+          if (sc.hasNext()) {
+            String str = sc.useDelimiter("\\Z").next();
+            Map<Object, Object> controlStorage = new Gson().fromJson(str, Map.class);
+            if (controlStorage == null) return this;
+            controls = controlStorage;
+          }
         }
+
       }
 
       isStorageLoaded = true;

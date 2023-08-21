@@ -13,8 +13,11 @@ public class DriverFactory {
 
   private static final Map<Long, WebDriver> WEB_DRIVER_LIST = new HashMap<>();
   private static final Map<Long, WebDriverManager> WEB_DRIVER_MANAGER_LIST = new HashMap<>();
-  private static boolean runInDocker = false;
-  private static boolean dockerVnc = false;
+  private static final boolean RUN_IN_DOCKER = false;
+  private static final boolean DOCKER_VNC = false;
+
+  private DriverFactory() {
+  }
 
   public static WebDriver getDriver() {
     long currentThreadId = Thread.currentThread().getId();
@@ -31,23 +34,22 @@ public class DriverFactory {
   private static void newDriverInstance(BrowserType browserType) {
     WebDriver driver = null;
 
-    switch (browserType) {
-      case CHROME -> {
-        if (runInDocker) {
-          WebDriverManager wdm = WebDriverManager.chromedriver().browserInDocker();
-          if (dockerVnc) wdm.enableVnc();
+    if (Objects.requireNonNull(browserType) == BrowserType.CHROME) {
 
-          WEB_DRIVER_MANAGER_LIST.put(Thread.currentThread().getId(), wdm);
-          driver = wdm.create();
-        } else {
-          WebDriverManager.chromedriver().setup();
-          driver = getChromeDriverInstance();
-        }
+      if (RUN_IN_DOCKER) {
+        WebDriverManager wdm = WebDriverManager.chromedriver().browserInDocker();
+        if (DOCKER_VNC) wdm.enableVnc();
+
+        WEB_DRIVER_MANAGER_LIST.put(Thread.currentThread().getId(), wdm);
+        driver = wdm.create();
+      } else {
+        WebDriverManager.chromedriver().setup();
+        driver = getChromeDriverInstance();
       }
-      case FIREFOX -> {
-        WebDriverManager.firefoxdriver().setup();
-        driver = new FirefoxDriver();
-      }
+
+    } else if (browserType == BrowserType.FIREFOX) {
+      WebDriverManager.firefoxdriver().setup();
+      driver = new FirefoxDriver();
     }
 
     WEB_DRIVER_LIST.put(Thread.currentThread().getId(), driver);

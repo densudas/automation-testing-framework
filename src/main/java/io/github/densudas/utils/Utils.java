@@ -20,6 +20,9 @@ public class Utils {
   public static final String FILE_SEPARATOR = System.getProperty("file.separator");
   public static final String USER_DIR = System.getProperty("user.dir");
 
+  private Utils() {
+  }
+
   public static void clickWithJS(final SearchContext context) {
     getJSExecutor(context).executeScript("arguments[0].click()", context);
   }
@@ -33,8 +36,8 @@ public class Utils {
   }
 
   public static WebDriver getWebDriver(final SearchContext context) {
-    if (context instanceof WebDriver) {
-      return (WebDriver) context;
+    if (context instanceof WebDriver webdriver) {
+      return webdriver;
     }
 
     if (!(context instanceof WrapsDriver)) {

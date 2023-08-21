@@ -6,11 +6,11 @@ public enum TextFieldLabels implements TranslatableLocatorName {
 
   SEARCH("Search");
 
+  private final String name;
+
   TextFieldLabels(String name) {
     this.name = name;
   }
-
-  private String name;
 
   public String getName() {
     return name;

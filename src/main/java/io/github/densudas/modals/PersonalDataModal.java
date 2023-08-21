@@ -5,7 +5,7 @@ import io.github.densudas.controls.Button;
 
 public class PersonalDataModal<HomePage> implements Locatable {
 
-  private HomePage parentPage;
+  private final HomePage parentPage;
 
   public PersonalDataModal(HomePage parentPage) {
     this.parentPage = parentPage;

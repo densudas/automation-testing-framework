@@ -2,7 +2,7 @@ package io.github.densudas.components;
 
 public abstract class LoadableComponent<T extends LoadableComponent<T>> {
 
-  public LoadableComponent() {
+  protected LoadableComponent() {
     waitToLoad();
   }
 

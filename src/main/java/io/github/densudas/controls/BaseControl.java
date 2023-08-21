@@ -27,26 +27,29 @@ public abstract class BaseControl {
   protected WebElement webElement;
   protected Throwable error;
   private boolean searchFromRootNode;
+
+  // TODO: add parentLocator to the algorithm
   private Locator parentLocator;
+
   private boolean hasShadowRoot;
 
-  public BaseControl(Locatable pageObject, String name, int index) {
+  protected BaseControl(Locatable pageObject, String name, int index) {
     this.location = pageObject.getLocation();
     this.name = name;
     this.index = index;
   }
 
-  public BaseControl(Locatable pageObject, String name) {
+  protected BaseControl(Locatable pageObject, String name) {
     this.location = pageObject.getLocation();
     this.name = name;
   }
 
-  public BaseControl(Locatable pageObject, LocatorName name) {
+  protected BaseControl(Locatable pageObject, LocatorName name) {
     this.location = pageObject.getLocation();
     this.name = name.getName();
   }
 
-  public BaseControl(Locator locator) {
+  protected BaseControl(Locator locator) {
     this.saveToControlsStorage = false;
     this.searchControlInStorage = false;
     this.locator = locator;
@@ -65,10 +68,10 @@ public abstract class BaseControl {
 
     } else {
 
-      var locator = ControlsStorage.getLocatorFromStorage(location, controlType, name);
-      if (locator != null) {
-        webElement = findElementByLocator(locator);
-        controlSort = locator.getControlSort();
+      var locatorFromStorage = ControlsStorage.getLocatorFromStorage(location, controlType, name);
+      if (locatorFromStorage != null) {
+        webElement = findElementByLocator(locatorFromStorage);
+        controlSort = locatorFromStorage.getControlSort();
 
       } else {
         List<Locator> locators = Locators.getLocatorsByType(controlType);
