@@ -3,20 +3,20 @@ package io.github.densudas.modals;
 import io.github.densudas.Locatable;
 import io.github.densudas.controls.Button;
 
-public class PersonalDataModal<HomePage> implements Locatable {
+public class PersonalDataModal<T> implements Locatable {
 
-  private final HomePage parentPage;
+  private final T parentPage;
 
-  public PersonalDataModal(HomePage parentPage) {
+  public PersonalDataModal(T parentPage) {
     this.parentPage = parentPage;
   }
 
-  public HomePage clickConsentButton() throws Exception {
+  public T clickConsentButton() throws Exception {
     new Button(this, PersonalDataModalLabels.CONSENT).findControl().click();
     return parentPage;
   }
 
-  public PersonalDataModal<HomePage> click() throws Exception {
+  public PersonalDataModal<T> click() throws Exception {
     new Button(this, PersonalDataModalLabels.CONSENT).findControl().click();
     return this;
   }
