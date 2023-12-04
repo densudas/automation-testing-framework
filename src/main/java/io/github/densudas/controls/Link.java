@@ -6,6 +6,7 @@ import io.github.densudas.Locator;
 import io.github.densudas.LocatorName;
 import io.github.densudas.exceptions.ControlNotFoundException;
 import io.github.densudas.exceptions.ControlNotInteractableException;
+import io.github.densudas.exceptions.NoSuchSortException;
 
 public class Link extends BaseControl {
 
@@ -51,7 +52,7 @@ public class Link extends BaseControl {
 
       switch ((ControlSorts.Link) controlSort) {
         case LINK_1 -> webElement.click();
-        default -> throw new IllegalStateException("No such sort defined: " + controlSort);
+        default -> throw new NoSuchSortException(controlSort);
       }
       return control;
     }
@@ -59,14 +60,14 @@ public class Link extends BaseControl {
     public boolean isDisplayed() {
       return switch ((ControlSorts.Link) controlSort) {
         case LINK_1 -> webElement != null && webElement.isDisplayed();
-        default -> throw new IllegalStateException("No such sort defined: " + controlSort);
+        default -> throw new NoSuchSortException(controlSort);
       };
     }
 
     public boolean isHidden() {
       return switch ((ControlSorts.Link) controlSort) {
         case LINK_1 -> webElement == null || !webElement.isDisplayed();
-        default -> throw new IllegalStateException("No such sort defined: " + controlSort);
+        default -> throw new NoSuchSortException(controlSort);
       };
     }
   }

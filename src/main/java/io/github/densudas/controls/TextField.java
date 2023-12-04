@@ -6,6 +6,7 @@ import io.github.densudas.Locator;
 import io.github.densudas.LocatorName;
 import io.github.densudas.exceptions.ControlNotFoundException;
 import io.github.densudas.exceptions.ControlNotInteractableException;
+import io.github.densudas.exceptions.NoSuchSortException;
 
 public class TextField extends BaseControl {
 
@@ -51,7 +52,7 @@ public class TextField extends BaseControl {
 
       switch ((ControlSorts.TextField) controlSort) {
         case TEXT_FIELD_1 -> webElement.sendKeys(text);
-        default -> throw new IllegalStateException("No such sort defined: " + controlSort);
+        default -> throw new NoSuchSortException(controlSort);
       }
       return control;
     }
@@ -59,14 +60,14 @@ public class TextField extends BaseControl {
     public boolean isDisplayed() {
       return switch ((ControlSorts.TextField) controlSort) {
         case TEXT_FIELD_1 -> webElement != null && webElement.isDisplayed();
-        default -> throw new IllegalStateException("No such sort defined: " + controlSort);
+        default -> throw new NoSuchSortException(controlSort);
       };
     }
 
     public boolean isHidden() {
       return switch ((ControlSorts.TextField) controlSort) {
         case TEXT_FIELD_1 -> webElement == null || !webElement.isDisplayed();
-        default -> throw new IllegalStateException("No such sort defined: " + controlSort);
+        default -> throw new NoSuchSortException(controlSort);
       };
     }
   }
