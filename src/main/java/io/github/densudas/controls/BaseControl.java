@@ -95,7 +95,7 @@ public abstract class BaseControl {
       searchFromNode = findElementByLocator(locator.getParentLocator());
     }
 
-    var by = new LocatorMatcher(locator.getBy()).formatWithName(name);
+    var by = new LocatorMatcher(locator.getBy()).formatWithName(name).buildBy();
     return findVisibleElement(searchFromNode, by);
   }
 
