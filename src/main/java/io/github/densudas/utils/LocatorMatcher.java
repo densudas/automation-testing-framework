@@ -9,10 +9,11 @@ import org.openqa.selenium.support.How;
 
 public class LocatorMatcher {
 
-  private static final String LOCATOR_REGEX = "^By\\.(\\w+): (.*)$";
+  private static final Pattern LOCATOR_PATTERN =
+      Pattern.compile("^By\\.(\\w+): (.*)$");
 
   private final How locatorType;
-  private String locator;
+  private final String locator;
 
   public LocatorMatcher(String locatorType, String locator) {
     this.locatorType = How.valueOf(locatorType.toUpperCase());
@@ -29,7 +30,7 @@ public class LocatorMatcher {
 
     if (matchLocatorRegex.isEmpty() || matchLocatorRegex.size() < 2) {
       throw new IllegalArgumentException(
-          "Locator By '" + by + "' can not be matched by regex '" + LOCATOR_REGEX + "'");
+          "Locator By '" + by + "' can not be matched by regex '" + LOCATOR_PATTERN + "'");
     }
 
     this.locatorType = getLocatorType(matchLocatorRegex.get(1));
@@ -53,7 +54,7 @@ public class LocatorMatcher {
     }
 
     List<String> groups = new ArrayList<>();
-    Matcher matcher = Pattern.compile(LOCATOR_REGEX).matcher(locator.toString());
+    Matcher matcher = LOCATOR_PATTERN.matcher(locator.toString());
     if (matcher.find()) {
       for (int i = 0; i <= matcher.groupCount(); i++) {
         groups.add(matcher.group(i));
@@ -70,9 +71,9 @@ public class LocatorMatcher {
     return locatorType;
   }
 
-  public By formatWithName(String name) {
-    locator = String.format(this.locator, name);
-    return buildBy();
+  public LocatorMatcher formatWithName(String name) {
+    String formattedLocator = String.format(this.locator, name);
+    return new LocatorMatcher(this.locatorType, formattedLocator);
   }
 
   public By buildBy() {

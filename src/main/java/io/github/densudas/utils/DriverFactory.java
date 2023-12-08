@@ -9,6 +9,9 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
+/**
+ * The DriverFactory class provides methods for managing WebDriver instances.
+ */
 public class DriverFactory {
 
   private static final Map<Long, WebDriver> WEB_DRIVER_LIST = new HashMap<>();
@@ -19,10 +22,21 @@ public class DriverFactory {
   private DriverFactory() {
   }
 
+  /**
+   * Retrieves the WebDriver instance associated with the current thread. If an instance does not exist, a new one is created.
+   *
+   * @return the WebDriver instance
+   * @throws IllegalStateException if the creation of a new WebDriver instance fails
+   */
   public static WebDriver getDriver() {
-    long currentThreadId = Thread.currentThread().getId();
-    if (WEB_DRIVER_LIST.get(currentThreadId) == null)
-      newDriverInstance(BrowserType.CHROME);
+    long currentThreadId = Thread.currentThread().threadId();
+    if (WEB_DRIVER_LIST.get(currentThreadId) == null) {
+      try {
+        newDriverInstance(BrowserType.CHROME);
+      } catch (Exception e) {
+        throw new IllegalStateException("Failed to create a new WebDriver instance: " + e.getMessage());
+      }
+    }
     return WEB_DRIVER_LIST.get(currentThreadId);
   }
 
@@ -31,6 +45,11 @@ public class DriverFactory {
     WEB_DRIVER_MANAGER_LIST.values().stream().filter(Objects::nonNull).forEach(WebDriverManager::quit);
   }
 
+  /**
+   * Creates a new instance of a WebDriver based on the specified browser type.
+   *
+   * @param browserType the type of browser to create the WebDriver instance for
+   */
   private static void newDriverInstance(BrowserType browserType) {
     WebDriver driver = null;
 
@@ -40,7 +59,7 @@ public class DriverFactory {
         WebDriverManager wdm = WebDriverManager.chromedriver().browserInDocker();
         if (DOCKER_VNC) wdm.enableVnc();
 
-        WEB_DRIVER_MANAGER_LIST.put(Thread.currentThread().getId(), wdm);
+        WEB_DRIVER_MANAGER_LIST.put(Thread.currentThread().threadId(), wdm);
         driver = wdm.create();
       } else {
         WebDriverManager.chromedriver().setup();
@@ -52,7 +71,7 @@ public class DriverFactory {
       driver = new FirefoxDriver();
     }
 
-    WEB_DRIVER_LIST.put(Thread.currentThread().getId(), driver);
+    WEB_DRIVER_LIST.put(Thread.currentThread().threadId(), driver);
   }
 
   private static ChromeDriver getChromeDriverInstance() {

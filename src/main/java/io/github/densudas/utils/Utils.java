@@ -1,5 +1,7 @@
 package io.github.densudas.utils;
 
+import io.github.densudas.Configurations;
+import java.nio.file.FileSystems;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +19,11 @@ import org.openqa.selenium.support.ui.FluentWait;
 
 public class Utils {
 
-  public static final String FILE_SEPARATOR = System.getProperty("file.separator");
+  public static final String FILE_SEPARATOR = FileSystems.getDefault().getSeparator();
   public static final String USER_DIR = System.getProperty("user.dir");
+  // Place these two lines at appropriate place
+  static int timeoutInSeconds = Configurations.getTimeoutValue();
+  static int pollingIntervalInSeconds = Configurations.getPollingInterval();
 
   private Utils() {
   }
@@ -28,7 +33,11 @@ public class Utils {
   }
 
   public static JavascriptExecutor getJSExecutor() {
-    return (JavascriptExecutor) DriverFactory.getDriver();
+    WebDriver driver = DriverFactory.getDriver();
+    if (driver instanceof JavascriptExecutor)
+      return (JavascriptExecutor) driver;
+    else
+      throw new ClassCastException("The WebDriver returned is not a JavascriptExecutor");
   }
 
   public static JavascriptExecutor getJSExecutor(final SearchContext context) {
@@ -88,8 +97,8 @@ public class Utils {
 
   public static <V> V waitUntil(final Function<? super WebDriver, V> isTrue) {
     FluentWait<WebDriver> wait = new FluentWait<>(DriverFactory.getDriver());
-    wait.withTimeout(Duration.ofSeconds(20));
-    wait.pollingEvery(Duration.ofSeconds(1));
+    wait.withTimeout(Duration.ofSeconds(timeoutInSeconds));
+    wait.pollingEvery(Duration.ofSeconds(pollingIntervalInSeconds));
     return wait.until(isTrue);
   }
 
